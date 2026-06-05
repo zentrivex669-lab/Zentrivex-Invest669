@@ -15,6 +15,7 @@ const PLAN_META = [
   { icon: Building2, type: "Real Estate Fund", desc: "Returns generated primarily from residential and commercial property rental income.", color: "text-orange-400" },
   { icon: BarChart2, type: "Blended Portfolio", desc: "50/50 split between premium real estate and actively managed stock market positions.", color: "text-primary" },
   { icon: Landmark, type: "Premium Fund", desc: "Institutional-grade exposure to global REITs, blue-chip equities, and prime commercial real estate.", color: "text-purple-400" },
+  { icon: TrendingUp, type: "Elite Premium Fund", desc: "Exclusive institutional-grade access: top-tier commercial acquisitions plus a fully managed global stock portfolio. For high-net-worth investors.", color: "text-yellow-400" },
 ];
 
 function PlansContent() {
@@ -54,7 +55,7 @@ function PlansContent() {
 
       {isLoading && <div className="grid grid-cols-1 md:grid-cols-3 gap-6">{[1,2,3].map(i => <div key={i} className="h-80 rounded-xl bg-card border border-card-border animate-pulse" />)}</div>}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {plans?.map((plan, i) => {
           const meta = PLAN_META[i] || PLAN_META[0];
           return (

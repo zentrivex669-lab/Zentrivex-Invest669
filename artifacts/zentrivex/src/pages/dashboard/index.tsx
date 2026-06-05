@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { useState, useRef } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useGetDashboard, useListTransactions, useListInvestments } from "@workspace/api-client-react";
@@ -6,7 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowDownCircle, ArrowUpCircle, TrendingUp, Briefcase, Shield, AlertTriangle, ArrowRight, Building2, BarChart2 } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, TrendingUp, Briefcase, Shield, AlertTriangle, ArrowRight, Building2, BarChart2, Maximize2, Minimize2, X } from "lucide-react";
 
 const MARKET_PREVIEW = [
   { label: "S&P 500", value: "5,431", change: "+1.2%", positive: true },
@@ -29,6 +30,90 @@ function StatCard({ label, value, sub, icon: Icon, color = "text-foreground" }: 
   );
 }
 
+function TradingViewChart() {
+  const [fullscreen, setFullscreen] = useState(false);
+  const [symbol, setSymbol] = useState("NASDAQ:AAPL");
+  const [interval, setInterval] = useState("D");
+
+  const symbols = [
+    { label: "Apple", value: "NASDAQ:AAPL" },
+    { label: "S&P 500", value: "SP:SPX" },
+    { label: "Microsoft", value: "NASDAQ:MSFT" },
+    { label: "JPMorgan", value: "NYSE:JPM" },
+    { label: "Gold", value: "TVC:GOLD" },
+    { label: "US Real Est.", value: "AMEX:VNQ" },
+  ];
+
+  const intervals = [
+    { label: "1D", value: "D" },
+    { label: "1W", value: "W" },
+    { label: "1M", value: "M" },
+    { label: "1H", value: "60" },
+  ];
+
+  const chartUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tv_dash&symbol=${encodeURIComponent(symbol)}&interval=${interval}&hidesidetoolbar=0&symboledit=0&saveimage=0&toolbarbg=1a1f2e&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hideideas=1&locale=en&hide_top_toolbar=0&hide_legend=0&hide_volume=0`;
+
+  const chartContent = (
+    <div className={`flex flex-col ${fullscreen ? "h-full" : "h-full"}`}>
+      <div className="flex items-center justify-between px-4 py-3 border-b border-card-border flex-shrink-0">
+        <div className="flex items-center gap-2">
+          <BarChart2 size={15} className="text-primary" />
+          <span className="text-sm font-bold">Live Market Chart</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {/* Interval selector */}
+          <div className="flex gap-1">
+            {intervals.map(iv => (
+              <button key={iv.value} onClick={() => setInterval(iv.value)}
+                className={`px-2 py-1 rounded text-xs font-semibold transition-all ${interval === iv.value ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}>
+                {iv.label}
+              </button>
+            ))}
+          </div>
+          {/* Symbol selector */}
+          <select value={symbol} onChange={e => setSymbol(e.target.value)}
+            className="h-7 rounded border border-card-border bg-secondary text-xs text-foreground px-2 focus:outline-none focus:ring-1 focus:ring-primary">
+            {symbols.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </select>
+          <button onClick={() => setFullscreen(f => !f)}
+            className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-foreground transition-all"
+            title={fullscreen ? "Exit fullscreen" : "View fullscreen"}>
+            {fullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+          </button>
+          {fullscreen && (
+            <button onClick={() => setFullscreen(false)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-foreground">
+              <X size={15} />
+            </button>
+          )}
+        </div>
+      </div>
+      <iframe
+        key={`${symbol}-${interval}`}
+        src={chartUrl}
+        className="flex-1 w-full"
+        style={{ border: 0, minHeight: fullscreen ? "calc(100vh - 120px)" : "380px" }}
+        allowTransparency={true}
+        scrolling="no"
+        title="TradingView Chart"
+      />
+    </div>
+  );
+
+  if (fullscreen) {
+    return (
+      <div className="fixed inset-0 z-50 bg-background flex flex-col">
+        {chartContent}
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-card border border-card-border rounded-xl overflow-hidden">
+      {chartContent}
+    </div>
+  );
+}
+
 function DashboardContent() {
   const { user } = useAuth();
   const { data: dashboard, isLoading } = useGetDashboard();
@@ -46,10 +131,18 @@ function DashboardContent() {
         <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex items-center gap-3">
           <AlertTriangle size={16} className="text-yellow-400 flex-shrink-0" />
           <div className="flex-1">
-            <p className="text-sm font-semibold text-yellow-400">Identity Verification Required</p>
-            <p className="text-xs text-muted-foreground">Complete KYC to unlock deposits, withdrawals, and investments</p>
+            <p className="text-sm font-semibold text-yellow-400">
+              {user?.kycStatus === "pending" ? "KYC Under Review — Awaiting Admin Approval" : "Identity Verification Required"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {user?.kycStatus === "pending"
+                ? "Your KYC documents have been submitted and are being reviewed by our compliance team."
+                : "Complete KYC to unlock deposits, withdrawals, and investments."}
+            </p>
           </div>
-          <Link href="/dashboard/kyc"><Button size="sm" variant="outline" className="text-yellow-400 border-yellow-500/40 hover:bg-yellow-500/10">Verify Now</Button></Link>
+          {user?.kycStatus !== "pending" && (
+            <Link href="/dashboard/kyc"><Button size="sm" variant="outline" className="text-yellow-400 border-yellow-500/40 hover:bg-yellow-500/10">Verify Now</Button></Link>
+          )}
         </div>
       )}
 
@@ -75,9 +168,11 @@ function DashboardContent() {
         </>)}
       </div>
 
+      {/* TradingView Chart */}
+      <TradingViewChart />
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          {/* Portfolio split */}
           <div className="bg-card border border-card-border rounded-xl p-5">
             <h3 className="font-bold text-sm mb-4 flex items-center gap-2"><BarChart2 size={15} className="text-primary" />Return Sources</h3>
             {[

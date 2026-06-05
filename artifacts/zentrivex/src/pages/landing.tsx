@@ -248,7 +248,7 @@ export default function LandingPage() {
             <h2 className="text-4xl font-black tracking-tight mb-4">Choose Your Package</h2>
             <p className="text-muted-foreground max-w-xl mx-auto">Transparent returns from real estate rental income and stock market gains — zero hidden fees.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
             {plans?.map((plan, i) => (
               <div key={plan.id} className={`relative rounded-2xl border p-8 flex flex-col gap-4 transition-all hover:-translate-y-1 ${i === 1 ? "border-primary bg-primary/5" : "border-card-border bg-card"}`}>
                 {i === 1 && <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-bold px-3">MOST POPULAR</Badge>}
