@@ -2,27 +2,26 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useListPlans } from "@workspace/api-client-react";
-import { ArrowRight, TrendingUp, Shield, Zap, Lock, Globe, BarChart2, CheckCircle } from "lucide-react";
+import { ArrowRight, TrendingUp, Shield, Building2, Globe, BarChart2, CheckCircle, Home, Landmark, LineChart, Users, DollarSign } from "lucide-react";
 
-const CRYPTO_PRICES = [
-  { symbol: "BTC", name: "Bitcoin", price: "$62,913", change: "+2.4%", positive: true, color: "text-orange-400" },
-  { symbol: "ETH", name: "Ethereum", price: "$3,421", change: "+1.8%", positive: true, color: "text-blue-400" },
-  { symbol: "BNB", name: "BNB", price: "$589", change: "-0.6%", positive: false, color: "text-yellow-400" },
-  { symbol: "SOL", name: "Solana", price: "$178", change: "+4.2%", positive: true, color: "text-purple-400" },
-  { symbol: "ADA", name: "Cardano", price: "$0.58", change: "+1.1%", positive: true, color: "text-cyan-400" },
-  { symbol: "USDT", name: "Tether", price: "$1.00", change: "0.0%", positive: true, color: "text-green-400" },
+const MARKET_STATS = [
+  { label: "S&P 500", value: "5,431.60", change: "+1.2%", positive: true },
+  { label: "Dow Jones", value: "39,118", change: "+0.8%", positive: true },
+  { label: "NASDAQ", value: "17,372", change: "+1.5%", positive: true },
+  { label: "US10Y Bond", value: "4.28%", change: "-0.03%", positive: false },
+  { label: "Gold", value: "$2,387", change: "+0.4%", positive: true },
+  { label: "Oil (WTI)", value: "$78.42", change: "-0.9%", positive: false },
 ];
 
-function CryptoTicker() {
+function MarketTicker() {
   return (
     <div className="border-y border-card-border bg-card/40 overflow-hidden py-3">
-      <div className="flex animate-[scroll_30s_linear_infinite] gap-12 whitespace-nowrap"
-        style={{ animation: "scroll 30s linear infinite" }}>
-        {[...CRYPTO_PRICES, ...CRYPTO_PRICES].map((c, i) => (
+      <div style={{ animation: "scroll 30s linear infinite" }} className="flex gap-12 whitespace-nowrap">
+        {[...MARKET_STATS, ...MARKET_STATS].map((s, i) => (
           <div key={i} className="flex items-center gap-3 flex-shrink-0">
-            <span className={`font-bold text-sm ${c.color}`}>{c.symbol}</span>
-            <span className="text-sm text-foreground font-semibold">{c.price}</span>
-            <span className={`text-xs font-semibold ${c.positive ? "text-green-400" : "text-red-400"}`}>{c.change}</span>
+            <span className="font-bold text-sm text-foreground">{s.label}</span>
+            <span className="text-sm font-semibold text-muted-foreground">{s.value}</span>
+            <span className={`text-xs font-bold ${s.positive ? "text-green-400" : "text-red-400"}`}>{s.change}</span>
           </div>
         ))}
       </div>
@@ -30,33 +29,109 @@ function CryptoTicker() {
   );
 }
 
-function MiniChart({ positive }: { positive: boolean }) {
-  const points = positive
-    ? "0,50 10,45 20,48 30,35 40,30 50,25 60,20 70,15 80,10 90,8 100,5"
-    : "0,10 10,15 20,12 30,25 40,30 50,28 60,35 70,40 80,42 90,45 100,50";
+const PROPERTIES = [
+  {
+    title: "Manhattan Luxury Tower",
+    location: "New York, USA",
+    type: "Commercial",
+    return: "18.4%",
+    value: "$24.6M",
+    status: "Active",
+    img: "🏢",
+  },
+  {
+    title: "Dubai Marina Residences",
+    location: "Dubai, UAE",
+    type: "Residential",
+    return: "22.1%",
+    value: "$15.2M",
+    status: "Active",
+    img: "🏙️",
+  },
+  {
+    title: "London Business Hub",
+    location: "London, UK",
+    type: "Commercial",
+    return: "16.8%",
+    value: "$31.4M",
+    status: "Active",
+    img: "🏛️",
+  },
+];
+
+function PropertyCard({ prop }: { prop: typeof PROPERTIES[0] }) {
   return (
-    <svg viewBox="0 0 100 55" className="w-16 h-8">
-      <polyline points={points} fill="none" stroke={positive ? "#4ade80" : "#f87171"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <div className="bg-card border border-card-border rounded-2xl overflow-hidden hover:-translate-y-1 transition-all group">
+      <div className="h-40 bg-gradient-to-br from-secondary to-card flex items-center justify-center text-6xl border-b border-card-border">
+        {prop.img}
+      </div>
+      <div className="p-5">
+        <div className="flex items-start justify-between mb-2">
+          <div>
+            <h3 className="font-bold text-sm">{prop.title}</h3>
+            <p className="text-xs text-muted-foreground">{prop.location}</p>
+          </div>
+          <Badge className="bg-green-500/10 text-green-400 border-green-500/30 text-xs">{prop.status}</Badge>
+        </div>
+        <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-card-border text-center">
+          <div>
+            <p className="text-xs text-muted-foreground">Type</p>
+            <p className="text-xs font-bold mt-0.5">{prop.type}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Annual ROI</p>
+            <p className="text-xs font-black text-primary mt-0.5">{prop.return}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Value</p>
+            <p className="text-xs font-bold mt-0.5">{prop.value}</p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
-function PriceCards() {
+function StockPortfolioPreview() {
+  const stocks = [
+    { ticker: "AAPL", name: "Apple Inc.", allocation: 18, change: "+2.1%" },
+    { ticker: "MSFT", name: "Microsoft Corp.", allocation: 15, change: "+1.8%" },
+    { ticker: "BRK.B", name: "Berkshire Hathaway", allocation: 12, change: "+0.6%" },
+    { ticker: "JPM", name: "JPMorgan Chase", allocation: 10, change: "+1.2%" },
+    { ticker: "VNQ", name: "REIT ETF", allocation: 25, change: "+0.9%" },
+    { ticker: "Others", name: "Diversified Portfolio", allocation: 20, change: "+1.4%" },
+  ];
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-      {CRYPTO_PRICES.map((c) => (
-        <div key={c.symbol} className="bg-card border border-card-border rounded-xl p-4 flex items-center justify-between hover:border-primary/30 transition-all">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className={`text-xs font-black ${c.color}`}>{c.symbol}</span>
-              <span className="text-xs text-muted-foreground">{c.name}</span>
-            </div>
-            <p className="text-lg font-black text-foreground">{c.price}</p>
-            <p className={`text-xs font-semibold ${c.positive ? "text-green-400" : "text-red-400"}`}>{c.change} today</p>
-          </div>
-          <MiniChart positive={c.positive} />
+    <div className="bg-card border border-card-border rounded-2xl p-6">
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h3 className="font-bold">Active Stock Portfolio</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Managed by our expert traders</p>
         </div>
-      ))}
+        <div className="text-right">
+          <p className="text-xs text-muted-foreground">YTD Return</p>
+          <p className="text-xl font-black text-primary">+28.4%</p>
+        </div>
+      </div>
+      <div className="space-y-3">
+        {stocks.map((s) => (
+          <div key={s.ticker} className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
+              <span className="text-xs font-black text-primary">{s.ticker.slice(0, 3)}</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-semibold">{s.name}</span>
+                <span className="text-xs text-green-400 font-bold">{s.change}</span>
+              </div>
+              <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                <div className="h-full bg-primary rounded-full" style={{ width: `${s.allocation}%` }} />
+              </div>
+            </div>
+            <span className="text-xs text-muted-foreground w-8 text-right">{s.allocation}%</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -78,7 +153,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-black text-sm">Z</span>
+              <Building2 size={16} className="text-primary-foreground" />
             </div>
             <span className="font-bold text-xl tracking-tight">Zentrivex</span>
           </div>
@@ -89,39 +164,60 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Ticker */}
-      <CryptoTicker />
+      {/* Market Ticker */}
+      <MarketTicker />
 
       {/* Hero */}
       <section className="relative max-w-7xl mx-auto px-6 pt-20 pb-16">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
-        <div className="text-center max-w-4xl mx-auto mb-16">
-          <Badge className="mb-6 bg-primary/10 text-primary border-primary/20 text-xs font-semibold tracking-widest uppercase">Institutional-Grade Crypto Investing</Badge>
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-none mb-6">
-            Grow Your Wealth<br />
-            <span className="text-primary">With Confidence</span>
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-            Zentrivex delivers professional-grade crypto investment plans with transparent returns, institutional security, and 24/7 real-time market data.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/register"><Button size="lg" className="gap-2 text-base px-8 h-12 font-semibold">Start Investing <ArrowRight size={16} /></Button></Link>
-            <Link href="/login"><Button size="lg" variant="outline" className="text-base px-8 h-12">Sign In to Dashboard</Button></Link>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <Badge className="mb-6 bg-primary/10 text-primary border-primary/20 text-xs font-semibold tracking-widest uppercase">Real Estate & Stock Market Investments</Badge>
+            <h1 className="text-5xl md:text-6xl font-black tracking-tighter leading-none mb-6">
+              Build Lasting<br />
+              <span className="text-primary">Wealth Through</span><br />
+              Premium Assets
+            </h1>
+            <p className="text-lg text-muted-foreground mb-10 leading-relaxed">
+              Zentrivex pools investor capital into premium real estate properties and professionally managed stock portfolios — delivering consistent, above-market returns since 2015.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/register"><Button size="lg" className="gap-2 text-base px-8 h-12 font-semibold">Start Investing <ArrowRight size={16} /></Button></Link>
+              <Link href="/login"><Button size="lg" variant="outline" className="text-base px-8 h-12">Sign In</Button></Link>
+            </div>
+            <div className="flex gap-8 mt-10 pt-8 border-t border-card-border">
+              <div><p className="text-2xl font-black text-primary">$1.4B+</p><p className="text-xs text-muted-foreground mt-0.5">Assets Under Management</p></div>
+              <div><p className="text-2xl font-black text-primary">28.4%</p><p className="text-xs text-muted-foreground mt-0.5">Avg. Annual Return</p></div>
+              <div><p className="text-2xl font-black text-primary">9 yrs</p><p className="text-xs text-muted-foreground mt-0.5">Track Record</p></div>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <StockPortfolioPreview />
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { icon: Home, label: "Properties", value: "142" },
+                { icon: LineChart, label: "Markets", value: "12" },
+                { icon: Users, label: "Investors", value: "24K+" },
+              ].map(({ icon: Icon, label, value }) => (
+                <div key={label} className="bg-card border border-card-border rounded-xl p-4 text-center">
+                  <Icon size={18} className="text-primary mx-auto mb-2" />
+                  <p className="text-lg font-black">{value}</p>
+                  <p className="text-xs text-muted-foreground">{label}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-
-        {/* Live Price Cards */}
-        <PriceCards />
       </section>
 
       {/* Stats */}
       <section className="border-y border-card-border bg-card/50">
         <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
-            { label: "Total Invested", value: "$48M+" },
-            { label: "Active Investors", value: "12,400+" },
-            { label: "Countries Served", value: "89" },
-            { label: "Avg. Annual ROI", value: "34.7%" },
+            { label: "Assets Under Management", value: "$1.4B+" },
+            { label: "Active Investors", value: "24,000+" },
+            { label: "Countries Served", value: "52" },
+            { label: "Avg. Annual Return", value: "28.4%" },
           ].map(({ label, value }) => (
             <div key={label} className="text-center">
               <p className="text-3xl font-black text-primary mb-1">{value}</p>
@@ -131,36 +227,117 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Investment Plans */}
+      {/* Active Properties */}
       <section className="max-w-7xl mx-auto px-6 py-20">
         <div className="text-center mb-12">
-          <Badge className="mb-4 bg-primary/10 text-primary border-primary/20 text-xs font-semibold tracking-widest uppercase">Investment Plans</Badge>
-          <h2 className="text-4xl font-black tracking-tight mb-4">Choose Your Strategy</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">Transparent returns, fixed duration, zero hidden fees.</p>
+          <Badge className="mb-4 bg-primary/10 text-primary border-primary/20 text-xs font-semibold tracking-widest uppercase">Real Estate Portfolio</Badge>
+          <h2 className="text-4xl font-black tracking-tight mb-4">Active Properties</h2>
+          <p className="text-muted-foreground max-w-xl mx-auto">Your investment funds are deployed across premium commercial and residential properties in top global markets.</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {plans?.map((plan, i) => (
-            <div key={plan.id} className={`relative rounded-2xl border p-8 flex flex-col gap-4 transition-all hover:-translate-y-1 ${i === 1 ? "border-primary bg-primary/5" : "border-card-border bg-card"}`}>
-              {i === 1 && <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-bold px-3">MOST POPULAR</Badge>}
-              <div>
-                <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
-                <p className="text-sm text-muted-foreground">{plan.description}</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {PROPERTIES.map((prop) => <PropertyCard key={prop.title} prop={prop} />)}
+        </div>
+        <p className="text-center text-sm text-muted-foreground">+ 139 more properties across 52 countries</p>
+      </section>
+
+      {/* Investment Plans */}
+      <section className="bg-card/30 border-y border-card-border">
+        <div className="max-w-7xl mx-auto px-6 py-20">
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-primary/10 text-primary border-primary/20 text-xs font-semibold tracking-widest uppercase">Investment Packages</Badge>
+            <h2 className="text-4xl font-black tracking-tight mb-4">Choose Your Package</h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">Transparent returns from real estate rental income and stock market gains — zero hidden fees.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {plans?.map((plan, i) => (
+              <div key={plan.id} className={`relative rounded-2xl border p-8 flex flex-col gap-4 transition-all hover:-translate-y-1 ${i === 1 ? "border-primary bg-primary/5" : "border-card-border bg-card"}`}>
+                {i === 1 && <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-bold px-3">MOST POPULAR</Badge>}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    {i === 0 ? <Home size={18} className="text-primary" /> : i === 1 ? <Building2 size={18} className="text-primary" /> : <Landmark size={18} className="text-primary" />}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold">{plan.name}</h3>
+                    <p className="text-xs text-muted-foreground">{i === 0 ? "Real Estate Fund" : i === 1 ? "Mixed Portfolio" : "Premium Fund"}</p>
+                  </div>
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-black text-primary">{plan.roiPercent}%</span>
+                  <span className="text-muted-foreground text-sm">return / {plan.durationDays} days</span>
+                </div>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <div className="flex justify-between"><span>Min investment</span><span className="text-foreground font-semibold">${plan.minAmount.toLocaleString()}</span></div>
+                  <div className="flex justify-between"><span>Max investment</span><span className="text-foreground font-semibold">${plan.maxAmount.toLocaleString()}</span></div>
+                  <div className="flex justify-between"><span>Investment period</span><span className="text-foreground font-semibold">{plan.durationDays} days</span></div>
+                  <div className="flex justify-between"><span>Source</span><span className="text-foreground font-semibold">{i === 0 ? "Rental income" : i === 1 ? "RE + Stocks" : "Stocks + RE"}</span></div>
+                </div>
+                <Link href="/register"><Button className="w-full mt-2" variant={i === 1 ? "default" : "outline"}>Invest Now</Button></Link>
               </div>
-              <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-black text-primary">{plan.roiPercent}%</span>
-                <span className="text-muted-foreground text-sm">ROI / {plan.durationDays} days</span>
-              </div>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <div className="flex justify-between"><span>Min deposit</span><span className="text-foreground font-semibold">${plan.minAmount.toLocaleString()}</span></div>
-                <div className="flex justify-between"><span>Max deposit</span><span className="text-foreground font-semibold">${plan.maxAmount.toLocaleString()}</span></div>
-                <div className="flex justify-between"><span>Duration</span><span className="text-foreground font-semibold">{plan.durationDays} days</span></div>
-              </div>
-              <Link href="/register"><Button className="w-full mt-2" variant={i === 1 ? "default" : "outline"}>Get Started</Button></Link>
+            ))}
+            {(!plans || plans.length === 0) && (
+              <div className="col-span-3 text-center py-12 text-muted-foreground">Loading packages...</div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* How we invest */}
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <Badge className="mb-6 bg-primary/10 text-primary border-primary/20 text-xs font-semibold tracking-widest uppercase">Our Strategy</Badge>
+            <h2 className="text-4xl font-black tracking-tight mb-6">How We Generate Returns</h2>
+            <div className="space-y-6">
+              {[
+                { icon: Building2, title: "Real Estate Acquisitions", desc: "We purchase commercial and residential properties in high-growth markets, generating income through rental yields and capital appreciation." },
+                { icon: BarChart2, title: "Stock Market Trading", desc: "Our expert trading desk manages a diversified portfolio of blue-chip stocks, REITs, and ETFs, consistently outperforming the S&P 500." },
+                { icon: DollarSign, title: "Returns Distributed to Investors", desc: "Profits from both income streams are pooled and paid out to investors according to their package — transparently and on schedule." },
+              ].map(({ icon: Icon, title, desc }) => (
+                <div key={title} className="flex gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Icon size={18} className="text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold mb-1">{title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-          {(!plans || plans.length === 0) && (
-            <div className="col-span-3 text-center py-12 text-muted-foreground">Plans loading...</div>
-          )}
+          </div>
+          <div className="space-y-4">
+            <div className="bg-card border border-card-border rounded-2xl p-6">
+              <h4 className="font-bold text-sm mb-4">Return Sources (Current Quarter)</h4>
+              {[
+                { label: "Residential Rental Income", pct: 35, color: "bg-primary" },
+                { label: "Commercial Property Leases", pct: 28, color: "bg-blue-500" },
+                { label: "Stock Portfolio Gains", pct: 22, color: "bg-green-500" },
+                { label: "Property Appreciation", pct: 15, color: "bg-purple-500" },
+              ].map((item) => (
+                <div key={item.label} className="mb-4 last:mb-0">
+                  <div className="flex items-center justify-between text-xs mb-1.5">
+                    <span className="text-muted-foreground">{item.label}</span>
+                    <span className="font-bold">{item.pct}%</span>
+                  </div>
+                  <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                    <div className={`h-full ${item.color} rounded-full`} style={{ width: `${item.pct * 2}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-card border border-card-border rounded-xl p-4">
+                <p className="text-xs text-muted-foreground mb-1">Properties Owned</p>
+                <p className="text-2xl font-black text-primary">142</p>
+                <p className="text-xs text-green-400 mt-1">+12 this year</p>
+              </div>
+              <div className="bg-card border border-card-border rounded-xl p-4">
+                <p className="text-xs text-muted-foreground mb-1">Portfolio Value</p>
+                <p className="text-2xl font-black text-primary">$1.4B</p>
+                <p className="text-xs text-green-400 mt-1">+18.4% YoY</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -168,17 +345,17 @@ export default function LandingPage() {
       <section className="bg-card/30 border-y border-card-border">
         <div className="max-w-7xl mx-auto px-6 py-20">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-black tracking-tight mb-4">Why Zentrivex</h2>
-            <p className="text-muted-foreground">Built for serious investors who demand more.</p>
+            <h2 className="text-4xl font-black tracking-tight mb-4">Why Invest With Us</h2>
+            <p className="text-muted-foreground">Institutional expertise, accessible to every investor.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { icon: Shield, title: "Military-Grade Security", desc: "256-bit encryption, 2FA, cold storage. Your assets are protected by the same standards used by institutional custodians." },
-              { icon: BarChart2, title: "Real-Time Market Data", desc: "Live price feeds, portfolio analytics, and trend indicators updated every second." },
-              { icon: Zap, title: "Fast Payouts", desc: "Withdrawal requests processed within 24 hours after admin approval." },
-              { icon: Lock, title: "KYC Verified", desc: "Full identity verification ensures a safe, compliant environment for every investor." },
-              { icon: Globe, title: "Global Access", desc: "Open to investors in 89+ countries with support for multiple cryptocurrencies." },
-              { icon: TrendingUp, title: "Transparent Returns", desc: "Fixed, guaranteed ROI with no hidden fees or surprise charges. What you see is what you get." },
+              { icon: Shield, title: "Regulated & Secure", desc: "Fully licensed investment firm. Your capital is segregated in regulated custodian accounts, never co-mingled with operational funds." },
+              { icon: Building2, title: "Tangible Asset Backing", desc: "Unlike pure financial products, your investment is backed by real physical properties and blue-chip equities." },
+              { icon: BarChart2, title: "Dual Income Streams", desc: "Returns come from both property rental income and stock market gains — diversified and resilient across market cycles." },
+              { icon: CheckCircle, title: "Verified KYC", desc: "Full AML/KYC compliance ensures a safe and legally compliant investment environment for all participants." },
+              { icon: Globe, title: "Global Property Access", desc: "Invest in premium properties across New York, Dubai, London, Singapore and 48 other markets from anywhere in the world." },
+              { icon: TrendingUp, title: "Consistent Track Record", desc: "9 consecutive years of above-market returns. Our blended strategy has never missed a quarterly distribution." },
             ].map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex gap-4">
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -194,17 +371,17 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* How it works */}
+      {/* Steps */}
       <section className="max-w-7xl mx-auto px-6 py-20">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-black tracking-tight mb-4">How It Works</h2>
+          <h2 className="text-4xl font-black tracking-tight mb-4">How To Get Started</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {[
-            { step: "01", title: "Create Account", desc: "Register in minutes with just your email." },
-            { step: "02", title: "Verify Identity", desc: "Complete KYC with your government ID." },
-            { step: "03", title: "Deposit Funds", desc: "Send crypto to your dedicated wallet." },
-            { step: "04", title: "Earn Returns", desc: "Watch your portfolio grow with fixed ROI." },
+            { step: "01", title: "Create Account", desc: "Register in minutes with your email and personal details." },
+            { step: "02", title: "Verify Identity", desc: "Complete KYC verification to comply with AML regulations." },
+            { step: "03", title: "Fund Your Account", desc: "Deposit funds via our secure payment channels." },
+            { step: "04", title: "Earn Returns", desc: "We put your capital to work in real estate and markets." },
           ].map(({ step, title, desc }) => (
             <div key={step} className="text-center">
               <div className="text-5xl font-black text-primary/20 mb-4">{step}</div>
@@ -218,9 +395,9 @@ export default function LandingPage() {
       {/* CTA */}
       <section className="max-w-7xl mx-auto px-6 pb-20">
         <div className="rounded-2xl border border-primary/30 bg-primary/5 p-12 text-center">
-          <h2 className="text-4xl font-black tracking-tight mb-4">Ready to Grow Your Crypto?</h2>
-          <p className="text-muted-foreground mb-8 max-w-xl mx-auto">Join thousands of investors earning consistent returns with Zentrivex.</p>
-          <Link href="/register"><Button size="lg" className="gap-2 text-base px-10 h-12 font-bold">Create Free Account <ArrowRight size={16} /></Button></Link>
+          <h2 className="text-4xl font-black tracking-tight mb-4">Start Building Real Wealth Today</h2>
+          <p className="text-muted-foreground mb-8 max-w-xl mx-auto">Join 24,000+ investors earning consistent returns through our premium real estate and stock market funds.</p>
+          <Link href="/register"><Button size="lg" className="gap-2 text-base px-10 h-12 font-bold">Open an Account <ArrowRight size={16} /></Button></Link>
         </div>
       </section>
 
@@ -228,10 +405,13 @@ export default function LandingPage() {
       <footer className="border-t border-card-border">
         <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-primary flex items-center justify-center"><span className="text-primary-foreground font-black text-xs">Z</span></div>
+            <div className="w-6 h-6 rounded bg-primary flex items-center justify-center">
+              <Building2 size={12} className="text-primary-foreground" />
+            </div>
             <span className="font-bold tracking-tight">Zentrivex</span>
+            <span className="text-xs text-muted-foreground ml-2">Real Estate & Market Investments</span>
           </div>
-          <p className="text-xs text-muted-foreground">© 2025 Zentrivex. All rights reserved. Investment involves risk.</p>
+          <p className="text-xs text-muted-foreground">© 2025 Zentrivex Ltd. All rights reserved. Investments carry risk. Past performance is not indicative of future results.</p>
         </div>
       </footer>
     </div>
