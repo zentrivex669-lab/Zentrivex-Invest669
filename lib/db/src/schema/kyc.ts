@@ -9,10 +9,23 @@ export const documentTypeEnum = pgEnum("document_type", ["passport", "drivers_li
 export const kycTable = pgTable("kyc", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => usersTable.id).unique(),
+  // Personal information
+  fullName: text("full_name"),
+  dateOfBirth: text("date_of_birth"),
+  nationality: text("nationality"),
+  phone: text("phone"),
+  // Address
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  country: text("country"),
+  postalCode: text("postal_code"),
+  // Documents
   documentType: documentTypeEnum("document_type").notNull(),
   frontImage: text("front_image"),
   backImage: text("back_image"),
   selfieImage: text("selfie_image"),
+  // Status
   status: txStatusEnum("status").notNull().default("pending"),
   rejectionReason: text("rejection_reason"),
   reviewedAt: timestamp("reviewed_at"),
