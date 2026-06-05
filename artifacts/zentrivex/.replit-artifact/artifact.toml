@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Zentrivex - Crypto Investment Platform"
+version = "1.0.0"
+id = "artifacts/zentrivex"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21277
+
+[services.development]
+run = "pnpm --filter @workspace/zentrivex run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/zentrivex", "run", "build" ]
+publicDir = "artifacts/zentrivex/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21277"
+BASE_PATH = "/"

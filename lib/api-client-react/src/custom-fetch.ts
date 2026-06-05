@@ -44,6 +44,18 @@ export function setAuthTokenGetter(getter: AuthTokenGetter | null): void {
   _authTokenGetter = getter;
 }
 
+// Ensure the token from localStorage is used automatically
+const getToken = () => {
+  if (typeof window !== "undefined") {
+    return window.localStorage.getItem("zentrivex_token");
+  }
+  return null;
+};
+
+if (!_authTokenGetter) {
+  _authTokenGetter = getToken;
+}
+
 function isRequest(input: RequestInfo | URL): input is Request {
   return typeof Request !== "undefined" && input instanceof Request;
 }
