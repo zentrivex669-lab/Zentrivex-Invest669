@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, ArrowDownCircle, ArrowUpCircle, Shield,
-  TrendingUp, Users, LogOut, Menu, X, ChevronRight
+  TrendingUp, Users, LogOut, Menu, X, ChevronRight, Building2
 } from "lucide-react";
 
 const navItems = [
@@ -12,8 +12,8 @@ const navItems = [
   { href: "/admin/deposits", label: "Deposits", icon: ArrowDownCircle },
   { href: "/admin/withdrawals", label: "Withdrawals", icon: ArrowUpCircle },
   { href: "/admin/kyc", label: "KYC Reviews", icon: Shield },
-  { href: "/admin/plans", label: "Investment Plans", icon: TrendingUp },
-  { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/plans", label: "Investment Packages", icon: TrendingUp },
+  { href: "/admin/users", label: "Investors", icon: Users },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
@@ -27,11 +27,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className="flex items-center justify-between p-6 border-b border-card-border">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-black text-sm">Z</span>
+              <Building2 size={16} className="text-primary-foreground" />
             </div>
             <div>
-              <span className="font-bold text-lg tracking-tight text-foreground">Zentrivex</span>
-              <p className="text-xs text-primary font-semibold -mt-1">ADMIN</p>
+              <span className="font-bold text-base tracking-tight text-foreground block leading-tight">Zentrivex</span>
+              <p className="text-xs text-primary font-semibold">ADMIN PANEL</p>
             </div>
           </div>
           <button onClick={() => setOpen(false)} className="md:hidden text-muted-foreground hover:text-foreground"><X size={20} /></button>
@@ -41,15 +41,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             const active = location === href;
             return (
               <Link key={href} href={href} onClick={() => setOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}>
-                  <Icon size={17} />
-                  {label}
-                  {active && <ChevronRight size={14} className="ml-auto" />}
-                </Link>
+                <Icon size={17} />
+                {label}
+                {active && <ChevronRight size={14} className="ml-auto" />}
+              </Link>
             );
           })}
         </nav>
         <div className="p-4 border-t border-card-border">
-          <Link href="/dashboard" className="text-xs text-muted-foreground hover:text-primary block mb-3 px-3">Switch to User View</Link>
+          <Link href="/dashboard" className="text-xs text-muted-foreground hover:text-primary block mb-3 px-3">Switch to Investor View</Link>
           <Button variant="outline" size="sm" className="w-full gap-2" onClick={logout}>
             <LogOut size={14} /> Sign out
           </Button>
@@ -59,7 +59,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       <div className="flex-1 md:ml-64 min-h-screen flex flex-col">
         <header className="sticky top-0 z-30 bg-card/80 backdrop-blur border-b border-card-border px-6 py-4 flex items-center justify-between">
           <button onClick={() => setOpen(true)} className="md:hidden text-muted-foreground hover:text-foreground"><Menu size={20} /></button>
-          <h1 className="text-sm font-medium text-muted-foreground">Admin Panel</h1>
+          <h1 className="text-sm font-medium text-muted-foreground">Admin Panel — Zentrivex Investment Management</h1>
           <div className="text-sm text-muted-foreground">{user?.firstName} {user?.lastName}</div>
         </header>
         <main className="flex-1 p-6">{children}</main>

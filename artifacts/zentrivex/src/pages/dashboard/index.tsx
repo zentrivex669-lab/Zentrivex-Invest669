@@ -6,18 +6,13 @@ import { useAuth } from "@/hooks/use-auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowDownCircle, ArrowUpCircle, TrendingUp, Briefcase, Shield, AlertTriangle, ArrowRight } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, TrendingUp, Briefcase, Shield, AlertTriangle, ArrowRight, Building2, BarChart2 } from "lucide-react";
 
-function TradingMiniWidget() {
-  return (
-    <div className="rounded-xl overflow-hidden border border-card-border" style={{ height: 300 }}>
-      <iframe
-        src="https://s.tradingview.com/widgetembed/?frameElementId=tv_dash&symbol=BINANCE%3ABTCUSDT&interval=60&hidesidetoolbar=1&symboledit=1&saveimage=0&toolbarbg=1a1f2e&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=0&hideideas=1&locale=en"
-        width="100%" height="300" frameBorder="0" scrolling="no" title="BTC Chart"
-      />
-    </div>
-  );
-}
+const MARKET_PREVIEW = [
+  { label: "S&P 500", value: "5,431", change: "+1.2%", positive: true },
+  { label: "Portfolio RE", value: "$1.4B", change: "+18.4%", positive: true },
+  { label: "Stock Port.", value: "$342M", change: "+28.4%", positive: true },
+];
 
 function StatCard({ label, value, sub, icon: Icon, color = "text-foreground" }: { label: string; value: string; sub?: string; icon: any; color?: string }) {
   return (
@@ -44,43 +39,74 @@ function DashboardContent() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-black tracking-tight mb-1">Welcome back, {user?.firstName}</h1>
-        <p className="text-muted-foreground text-sm">Here's your portfolio overview</p>
+        <p className="text-muted-foreground text-sm">Your investment portfolio overview</p>
       </div>
 
       {user?.kycStatus !== "approved" && (
         <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex items-center gap-3">
           <AlertTriangle size={16} className="text-yellow-400 flex-shrink-0" />
           <div className="flex-1">
-            <p className="text-sm font-semibold text-yellow-400">KYC Verification Required</p>
-            <p className="text-xs text-muted-foreground">Complete identity verification to unlock all features</p>
+            <p className="text-sm font-semibold text-yellow-400">Identity Verification Required</p>
+            <p className="text-xs text-muted-foreground">Complete KYC to unlock deposits, withdrawals, and investments</p>
           </div>
           <Link href="/dashboard/kyc"><Button size="sm" variant="outline" className="text-yellow-400 border-yellow-500/40 hover:bg-yellow-500/10">Verify Now</Button></Link>
         </div>
       )}
 
+      {/* Market strip */}
+      <div className="grid grid-cols-3 gap-3">
+        {MARKET_PREVIEW.map(m => (
+          <div key={m.label} className="bg-card border border-card-border rounded-lg px-4 py-3 flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">{m.label}</span>
+            <div className="text-right">
+              <p className="text-xs font-bold text-foreground">{m.value}</p>
+              <p className={`text-xs font-semibold ${m.positive ? "text-green-400" : "text-red-400"}`}>{m.change}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {isLoading ? Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />) : (<>
-          <StatCard label="Total Balance" value={`$${Number(dashboard?.balance || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}`} icon={TrendingUp} color="text-primary" />
+          <StatCard label="Portfolio Balance" value={`$${Number(dashboard?.balance || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}`} icon={TrendingUp} color="text-primary" />
           <StatCard label="Total Invested" value={`$${Number(dashboard?.totalInvested || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}`} icon={Briefcase} />
-          <StatCard label="Total Profit" value={`$${Number(dashboard?.totalProfit || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}`} icon={ArrowUpCircle} color="text-green-400" />
-          <StatCard label="Active Plans" value={String(dashboard?.activeInvestments || 0)} sub={`${dashboard?.pendingDeposits || 0} pending deposits`} icon={ArrowDownCircle} />
+          <StatCard label="Total Returns" value={`$${Number(dashboard?.totalProfit || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}`} icon={ArrowUpCircle} color="text-green-400" />
+          <StatCard label="Active Plans" value={String(dashboard?.activeInvestments || 0)} sub={`${dashboard?.pendingDeposits || 0} pending deposits`} icon={Building2} />
         </>)}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <TradingMiniWidget />
+          {/* Portfolio split */}
+          <div className="bg-card border border-card-border rounded-xl p-5">
+            <h3 className="font-bold text-sm mb-4 flex items-center gap-2"><BarChart2 size={15} className="text-primary" />Return Sources</h3>
+            {[
+              { label: "Real Estate Income", pct: 45, color: "bg-primary" },
+              { label: "Stock Market Gains", pct: 35, color: "bg-blue-500" },
+              { label: "Property Appreciation", pct: 20, color: "bg-green-500" },
+            ].map(item => (
+              <div key={item.label} className="mb-3 last:mb-0">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-muted-foreground">{item.label}</span>
+                  <span className="font-bold">{item.pct}%</span>
+                </div>
+                <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                  <div className={`h-full ${item.color} rounded-full`} style={{ width: `${item.pct * 2}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
           <div className="grid grid-cols-3 gap-3">
-            <Link href="/dashboard/deposit"><Button variant="outline" className="w-full gap-2 text-sm"><ArrowDownCircle size={14} />Deposit</Button></Link>
-            <Link href="/dashboard/withdraw"><Button variant="outline" className="w-full gap-2 text-sm"><ArrowUpCircle size={14} />Withdraw</Button></Link>
-            <Link href="/dashboard/plans"><Button variant="outline" className="w-full gap-2 text-sm"><TrendingUp size={14} />Invest</Button></Link>
+            <Link href="/dashboard/deposit"><Button variant="outline" className="w-full gap-2 text-xs h-9"><ArrowDownCircle size={13} />Deposit</Button></Link>
+            <Link href="/dashboard/withdraw"><Button variant="outline" className="w-full gap-2 text-xs h-9"><ArrowUpCircle size={13} />Withdraw</Button></Link>
+            <Link href="/dashboard/plans"><Button variant="outline" className="w-full gap-2 text-xs h-9"><TrendingUp size={13} />Invest</Button></Link>
           </div>
         </div>
 
         <div className="space-y-4">
           <div className="bg-card border border-card-border rounded-xl p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-sm">Recent Activity</h3>
+              <h3 className="font-bold text-sm">Recent Transactions</h3>
               <Link href="/dashboard/transactions" className="text-xs text-primary hover:underline flex items-center gap-1">View all <ArrowRight size={12} /></Link>
             </div>
             {txs && txs.length > 0 ? (
@@ -92,7 +118,7 @@ function DashboardContent() {
                         {tx.type === "deposit" ? <ArrowDownCircle size={14} className="text-green-400" /> : tx.type === "withdrawal" ? <ArrowUpCircle size={14} className="text-red-400" /> : <TrendingUp size={14} className="text-primary" />}
                       </div>
                       <div>
-                        <p className="text-xs font-semibold capitalize">{tx.type}</p>
+                        <p className="text-xs font-semibold capitalize">{tx.type === "investment" ? "Investment" : tx.type}</p>
                         <p className="text-xs text-muted-foreground">{new Date(tx.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
@@ -106,13 +132,13 @@ function DashboardContent() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-muted-foreground text-sm">No transactions yet. Make your first deposit to get started.</div>
+              <div className="text-center py-8 text-muted-foreground text-sm">No transactions yet. Fund your account to get started.</div>
             )}
           </div>
 
           {investments && investments.filter(i => i.status === "active").length > 0 && (
             <div className="bg-card border border-card-border rounded-xl p-5">
-              <h3 className="font-bold text-sm mb-4">Active Investments</h3>
+              <h3 className="font-bold text-sm mb-4 flex items-center gap-2"><Building2 size={14} className="text-primary" />Active Investments</h3>
               <div className="space-y-3">
                 {investments.filter(i => i.status === "active").slice(0, 3).map(inv => {
                   const start = new Date(inv.startDate).getTime();

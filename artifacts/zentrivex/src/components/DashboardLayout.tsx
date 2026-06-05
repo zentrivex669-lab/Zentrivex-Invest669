@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   LayoutDashboard, TrendingUp, ArrowDownCircle, ArrowUpCircle,
-  Briefcase, Shield, List, LogOut, Menu, X, ChevronRight
+  Briefcase, Shield, List, LogOut, Menu, X, ChevronRight, Building2
 } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/plans", label: "Investment Plans", icon: TrendingUp },
-  { href: "/dashboard/deposit", label: "Deposit", icon: ArrowDownCircle },
+  { href: "/dashboard/plans", label: "Investment Packages", icon: TrendingUp },
+  { href: "/dashboard/deposit", label: "Deposit Funds", icon: ArrowDownCircle },
   { href: "/dashboard/withdraw", label: "Withdraw", icon: ArrowUpCircle },
   { href: "/dashboard/investments", label: "My Investments", icon: Briefcase },
   { href: "/dashboard/kyc", label: "KYC Verification", icon: Shield },
@@ -30,9 +30,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <div className="flex items-center justify-between p-6 border-b border-card-border">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-black text-sm">Z</span>
+              <Building2 size={16} className="text-primary-foreground" />
             </div>
-            <span className="font-bold text-lg tracking-tight text-foreground">Zentrivex</span>
+            <div>
+              <span className="font-bold text-base tracking-tight text-foreground block leading-tight">Zentrivex</span>
+              <span className="text-xs text-muted-foreground">Investments</span>
+            </div>
           </div>
           <button onClick={() => setOpen(false)} className="md:hidden text-muted-foreground hover:text-foreground"><X size={20} /></button>
         </div>
@@ -41,10 +44,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             const active = location === href;
             return (
               <Link key={href} href={href} onClick={() => setOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}>
-                  <Icon size={17} />
-                  {label}
-                  {active && <ChevronRight size={14} className="ml-auto" />}
-                </Link>
+                <Icon size={17} />
+                {label}
+                {active && <ChevronRight size={14} className="ml-auto" />}
+              </Link>
             );
           })}
         </nav>
@@ -76,7 +79,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               KYC: <span className={`ml-1 font-semibold ${user?.kycStatus === "approved" ? "text-green-400" : user?.kycStatus === "pending" ? "text-yellow-400" : "text-muted-foreground"}`}>{user?.kycStatus?.toUpperCase()}</span>
             </Badge>
             <div className="text-right hidden sm:block">
-              <p className="text-xs text-muted-foreground">Balance</p>
+              <p className="text-xs text-muted-foreground">Portfolio Balance</p>
               <p className="text-sm font-bold text-primary">${Number(user?.balance || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}</p>
             </div>
           </div>
