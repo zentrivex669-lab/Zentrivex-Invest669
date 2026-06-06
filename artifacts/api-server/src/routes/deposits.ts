@@ -3,6 +3,12 @@ import { db, depositsTable, usersTable, transactionsTable } from "@workspace/db"
 import { eq } from "drizzle-orm";
 import { authMiddleware, adminMiddleware, type AuthRequest } from "../middlewares/auth";
 import { CreateDepositBody, RejectDepositBody } from "@workspace/api-zod";
+import {
+  sendEmail,
+  emailDepositSubmitted,
+  emailDepositApproved,
+  emailDepositRejected,
+} from "../lib/email";
 
 const router = Router();
 
@@ -19,7 +25,7 @@ router.get("/deposits", authMiddleware, async (req: AuthRequest, res) => {
   try {
     const deps = await db.select().from(depositsTable).where(eq(depositsTable.userId, req.userId!));
     return res.json(deps.map(d => formatDeposit(d)));
-  } catch (e) {
+  } catch {
     return res.status(500).json({ error: "Failed to fetch deposits" });
   }
 });
@@ -45,8 +51,17 @@ router.post("/deposits", authMiddleware, async (req: AuthRequest, res) => {
       status: "pending",
       description: `Deposit of ${amount} ${currency} - pending approval`,
     });
+    // Send email asynchronously (non-blocking)
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!));
+    if (user) {
+      sendEmail(
+        user.email,
+        "Deposit Received — Zentrivex",
+        emailDepositSubmitted(user.firstName, amount, currency, new Date())
+      ).catch(() => {});
+    }
     return res.status(201).json(formatDeposit(dep));
-  } catch (e) {
+  } catch {
     return res.status(500).json({ error: "Failed to create deposit" });
   }
 });
@@ -58,7 +73,7 @@ router.get("/admin/deposits", authMiddleware, adminMiddleware, async (req: AuthR
     const users = userIds.length > 0 ? await db.select().from(usersTable) : [];
     const userMap = Object.fromEntries(users.map(u => [u.id, u]));
     return res.json(deps.map(d => formatDeposit(d, userMap[d.userId])));
-  } catch (e) {
+  } catch {
     return res.status(500).json({ error: "Failed to fetch deposits" });
   }
 });
@@ -80,8 +95,15 @@ router.patch("/admin/deposits/:id/approve", authMiddleware, adminMiddleware, asy
       status: "completed",
       description: `Deposit of ${dep.amount} ${dep.currency} approved`,
     });
+    if (user) {
+      sendEmail(
+        user.email,
+        "Deposit Approved — Funds Credited ✓",
+        emailDepositApproved(user.firstName, Number(dep.amount), newBalance)
+      ).catch(() => {});
+    }
     return res.json(formatDeposit(updated));
-  } catch (e) {
+  } catch {
     return res.status(500).json({ error: "Failed to approve deposit" });
   }
 });
@@ -95,8 +117,16 @@ router.patch("/admin/deposits/:id/reject", authMiddleware, adminMiddleware, asyn
     if (!dep) return res.status(404).json({ error: "Deposit not found" });
     if (dep.status !== "pending") return res.status(400).json({ error: "Deposit is not pending" });
     const [updated] = await db.update(depositsTable).set({ status: "rejected", rejectionReason: parsed.data.reason, updatedAt: new Date() }).where(eq(depositsTable.id, id)).returning();
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, dep.userId));
+    if (user) {
+      sendEmail(
+        user.email,
+        "Deposit Rejected — Action Required",
+        emailDepositRejected(user.firstName, Number(dep.amount), parsed.data.reason)
+      ).catch(() => {});
+    }
     return res.json(formatDeposit(updated));
-  } catch (e) {
+  } catch {
     return res.status(500).json({ error: "Failed to reject deposit" });
   }
 });

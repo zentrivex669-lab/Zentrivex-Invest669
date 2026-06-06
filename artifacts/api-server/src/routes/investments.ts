@@ -3,6 +3,7 @@ import { db, investmentsTable, plansTable, usersTable, transactionsTable } from 
 import { eq, and } from "drizzle-orm";
 import { authMiddleware, type AuthRequest } from "../middlewares/auth";
 import { CreateInvestmentBody } from "@workspace/api-zod";
+import { sendEmail, emailInvestmentPurchased } from "../lib/email";
 
 const router = Router();
 
@@ -63,6 +64,11 @@ router.post("/investments", authMiddleware, async (req: AuthRequest, res) => {
       status: "completed",
       description: `Investment in ${plan.name}`,
     });
+    sendEmail(
+      user.email,
+      `Investment Activated — ${plan.name}`,
+      emailInvestmentPurchased(user.firstName, plan.name, amount, Number(plan.roiPercent), endDate)
+    ).catch(() => {});
     return res.status(201).json(formatInvestment(inv, plan));
   } catch (e) {
     return res.status(500).json({ error: "Failed to create investment" });
