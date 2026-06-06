@@ -140,7 +140,9 @@ export default function LandingPage() {
   const { data: plans } = useListPlans();
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen text-foreground" style={{
+      background: "radial-gradient(ellipse 100% 55% at 50% 0%, rgba(13,148,136,0.32) 0%, transparent 65%), radial-gradient(ellipse 50% 35% at 90% 15%, rgba(234,179,8,0.13) 0%, transparent 55%), radial-gradient(ellipse 40% 30% at 5% 25%, rgba(13,148,136,0.10) 0%, transparent 50%), #040f0e"
+    }}>
       <style>{`
         @keyframes scroll {
           0% { transform: translateX(0); }
