@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useListPlans } from "@workspace/api-client-react";
-import { ArrowRight, TrendingUp, Shield, Building2, Globe, BarChart2, CheckCircle, Home, Landmark, LineChart, Users, DollarSign } from "lucide-react";
+import { ArrowRight, TrendingUp, Shield, Building2, Globe, BarChart2, CheckCircle, Home, Landmark, LineChart, Users, DollarSign, Star, MapPin, Quote } from "lucide-react";
 
 const MARKET_STATS = [
   { label: "S&P 500", value: "5,431.60", change: "+1.2%", positive: true },
@@ -11,12 +11,14 @@ const MARKET_STATS = [
   { label: "US10Y Bond", value: "4.28%", change: "-0.03%", positive: false },
   { label: "Gold", value: "$2,387", change: "+0.4%", positive: true },
   { label: "Oil (WTI)", value: "$78.42", change: "-0.9%", positive: false },
+  { label: "EUR/USD", value: "1.0842", change: "+0.2%", positive: true },
+  { label: "Bitcoin", value: "$67,210", change: "+3.1%", positive: true },
 ];
 
 function MarketTicker() {
   return (
     <div className="border-y border-card-border bg-card/40 overflow-hidden py-3">
-      <div style={{ animation: "scroll 30s linear infinite" }} className="flex gap-12 whitespace-nowrap">
+      <div style={{ animation: "scroll 40s linear infinite" }} className="flex gap-12 whitespace-nowrap">
         {[...MARKET_STATS, ...MARKET_STATS].map((s, i) => (
           <div key={i} className="flex items-center gap-3 flex-shrink-0">
             <span className="font-bold text-sm text-foreground">{s.label}</span>
@@ -31,49 +33,91 @@ function MarketTicker() {
 
 const PROPERTIES = [
   {
-    title: "Manhattan Luxury Tower",
+    title: "One Vanderbilt, Midtown",
     location: "New York, USA",
     type: "Commercial",
     return: "18.4%",
     value: "$24.6M",
-    status: "Active",
-    img: "🏢",
+    status: "Fully Leased",
+    img: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=80&fit=crop",
+    tenant: "Class A — Office Tower",
   },
   {
-    title: "Dubai Marina Residences",
+    title: "Marina Gate Tower",
     location: "Dubai, UAE",
     type: "Residential",
     return: "22.1%",
     value: "$15.2M",
-    status: "Active",
-    img: "🏙️",
+    status: "94% Occupied",
+    img: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80&fit=crop",
+    tenant: "Luxury Residences",
   },
   {
-    title: "London Business Hub",
+    title: "Canary Wharf Plaza",
     location: "London, UK",
     type: "Commercial",
     return: "16.8%",
     value: "$31.4M",
-    status: "Active",
-    img: "🏛️",
+    status: "Fully Leased",
+    img: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80&fit=crop",
+    tenant: "Grade A — Financial Hub",
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    name: "James Whitfield",
+    title: "Retired CFO, New York",
+    quote: "After 3 years with Zentrivex, my portfolio has returned consistently above what my previous fund manager was delivering. The real estate backing gives me genuine confidence.",
+    return: "31.2%",
+    period: "3-year return",
+    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=120&q=80&fit=crop&crop=face",
+    stars: 5,
+  },
+  {
+    name: "Amara Okonkwo",
+    title: "Entrepreneur, Lagos",
+    quote: "I was skeptical at first but the transparency around their property portfolio won me over. The dashboard is clean, the returns are real, and customer service is excellent.",
+    return: "28.7%",
+    period: "2-year return",
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80&fit=crop&crop=face",
+    stars: 5,
+  },
+  {
+    name: "Stefan Müller",
+    title: "Software Director, Munich",
+    quote: "Zentrivex gives me exposure to global real estate without the headache of direct property ownership. My dividend income has been reliable every single quarter.",
+    return: "24.5%",
+    period: "18-month return",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&q=80&fit=crop&crop=face",
+    stars: 5,
   },
 ];
 
 function PropertyCard({ prop }: { prop: typeof PROPERTIES[0] }) {
   return (
     <div className="bg-card border border-card-border rounded-2xl overflow-hidden hover:-translate-y-1 transition-all group">
-      <div className="h-40 bg-gradient-to-br from-secondary to-card flex items-center justify-center text-6xl border-b border-card-border">
-        {prop.img}
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={prop.img}
+          alt={prop.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+        <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
+          <div>
+            <p className="text-white font-bold text-sm leading-tight">{prop.title}</p>
+            <p className="text-white/70 text-xs flex items-center gap-1 mt-0.5">
+              <MapPin size={10} />{prop.location}
+            </p>
+          </div>
+          <Badge className="bg-green-500/20 text-green-400 border-green-500/40 text-xs backdrop-blur">{prop.status}</Badge>
+        </div>
       </div>
       <div className="p-5">
-        <div className="flex items-start justify-between mb-2">
-          <div>
-            <h3 className="font-bold text-sm">{prop.title}</h3>
-            <p className="text-xs text-muted-foreground">{prop.location}</p>
-          </div>
-          <Badge className="bg-green-500/10 text-green-400 border-green-500/30 text-xs">{prop.status}</Badge>
-        </div>
-        <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-card-border text-center">
+        <p className="text-xs text-muted-foreground mb-4">{prop.tenant}</p>
+        <div className="grid grid-cols-3 gap-3 pt-4 border-t border-card-border text-center">
           <div>
             <p className="text-xs text-muted-foreground">Type</p>
             <p className="text-xs font-bold mt-0.5">{prop.type}</p>
@@ -229,11 +273,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Active Properties */}
+      {/* Active Properties — with real building photos */}
       <section className="max-w-7xl mx-auto px-6 py-20">
         <div className="text-center mb-12">
           <Badge className="mb-4 bg-primary/10 text-primary border-primary/20 text-xs font-semibold tracking-widest uppercase">Real Estate Portfolio</Badge>
-          <h2 className="text-4xl font-black tracking-tight mb-4">Active Properties</h2>
+          <h2 className="text-4xl font-black tracking-tight mb-4">Our Active Properties</h2>
           <p className="text-muted-foreground max-w-xl mx-auto">Your investment funds are deployed across premium commercial and residential properties in top global markets.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -242,8 +286,48 @@ export default function LandingPage() {
         <p className="text-center text-sm text-muted-foreground">+ 139 more properties across 52 countries</p>
       </section>
 
+      {/* Real Investors Section */}
+      <section className="border-y border-card-border bg-card/30">
+        <div className="max-w-7xl mx-auto px-6 py-20">
+          <div className="text-center mb-14">
+            <Badge className="mb-4 bg-primary/10 text-primary border-primary/20 text-xs font-semibold tracking-widest uppercase">Investor Stories</Badge>
+            <h2 className="text-4xl font-black tracking-tight mb-4">Real People. Real Returns.</h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">Thousands of investors across the globe trust Zentrivex to grow their wealth through premium real assets.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {TESTIMONIALS.map((t) => (
+              <div key={t.name} className="bg-card border border-card-border rounded-2xl p-7 flex flex-col gap-5 hover:-translate-y-1 transition-all">
+                <Quote size={28} className="text-primary/40" />
+                <p className="text-sm text-muted-foreground leading-relaxed flex-1">"{t.quote}"</p>
+                <div className="flex items-center gap-1 mb-1">
+                  {Array.from({ length: t.stars }).map((_, i) => (
+                    <Star key={i} size={12} className="text-primary fill-primary" />
+                  ))}
+                </div>
+                <div className="flex items-center gap-4 pt-4 border-t border-card-border">
+                  <img
+                    src={t.avatar}
+                    alt={t.name}
+                    className="w-12 h-12 rounded-full object-cover border-2 border-primary/30"
+                    loading="lazy"
+                  />
+                  <div className="flex-1">
+                    <p className="font-bold text-sm">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.title}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-lg font-black text-primary">{t.return}</p>
+                    <p className="text-xs text-muted-foreground">{t.period}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Investment Plans */}
-      <section className="bg-card/30 border-y border-card-border">
+      <section className="bg-card/30 border-b border-card-border">
         <div className="max-w-7xl mx-auto px-6 py-20">
           <div className="text-center mb-12">
             <Badge className="mb-4 bg-primary/10 text-primary border-primary/20 text-xs font-semibold tracking-widest uppercase">Investment Packages</Badge>
@@ -396,10 +480,17 @@ export default function LandingPage() {
 
       {/* CTA */}
       <section className="max-w-7xl mx-auto px-6 pb-20">
-        <div className="rounded-2xl border border-primary/30 bg-primary/5 p-12 text-center">
-          <h2 className="text-4xl font-black tracking-tight mb-4">Start Building Real Wealth Today</h2>
-          <p className="text-muted-foreground mb-8 max-w-xl mx-auto">Join 24,000+ investors earning consistent returns through our premium real estate and stock market funds.</p>
-          <Link href="/register"><Button size="lg" className="gap-2 text-base px-10 h-12 font-bold">Open an Account <ArrowRight size={16} /></Button></Link>
+        <div className="relative rounded-2xl border border-primary/30 overflow-hidden">
+          <img
+            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80&fit=crop"
+            alt="Premium real estate skyline"
+            className="absolute inset-0 w-full h-full object-cover opacity-10"
+          />
+          <div className="relative p-12 text-center">
+            <h2 className="text-4xl font-black tracking-tight mb-4">Start Building Real Wealth Today</h2>
+            <p className="text-muted-foreground mb-8 max-w-xl mx-auto">Join 24,000+ investors earning consistent returns through our premium real estate and stock market funds.</p>
+            <Link href="/register"><Button size="lg" className="gap-2 text-base px-10 h-12 font-bold">Open an Account <ArrowRight size={16} /></Button></Link>
+          </div>
         </div>
       </section>
 
@@ -413,7 +504,7 @@ export default function LandingPage() {
             <span className="font-bold tracking-tight">Zentrivex</span>
             <span className="text-xs text-muted-foreground ml-2">Real Estate & Market Investments</span>
           </div>
-          <p className="text-xs text-muted-foreground">© 2025 Zentrivex Ltd. All rights reserved. Investments carry risk. Past performance is not indicative of future results.</p>
+          <p className="text-xs text-muted-foreground">© 2025 Zentrivex Ltd. All rights reserved.</p>
         </div>
       </footer>
     </div>
