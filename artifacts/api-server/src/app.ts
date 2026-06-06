@@ -9,6 +9,9 @@ import { startProfitDistributionJob } from "./jobs/profit-distribution";
 
 const app: Express = express();
 
+// Trust the first proxy hop (Replit's reverse proxy / Nginx on VPS)
+app.set("trust proxy", 1);
+
 app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginResourcePolicy: { policy: "cross-origin" },
