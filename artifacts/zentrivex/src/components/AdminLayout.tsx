@@ -4,7 +4,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, ArrowDownCircle, ArrowUpCircle, Shield,
-  TrendingUp, Users, LogOut, Menu, X, ChevronRight, Building2
+  TrendingUp, Users, LogOut, Menu, X, ChevronRight, Building2,
+  CreditCard, Home
 } from "lucide-react";
 
 const navItems = [
@@ -14,6 +15,8 @@ const navItems = [
   { href: "/admin/kyc", label: "KYC Reviews", icon: Shield },
   { href: "/admin/plans", label: "Investment Packages", icon: TrendingUp },
   { href: "/admin/users", label: "Investors", icon: Users },
+  { href: "/admin/settings/payment", label: "Payment Methods", icon: CreditCard },
+  { href: "/admin/settings/homepage", label: "Edit Homepage", icon: Home },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

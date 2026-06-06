@@ -20,6 +20,9 @@ import AdminWithdrawals from "@/pages/admin/withdrawals";
 import AdminKyc from "@/pages/admin/kyc";
 import AdminPlans from "@/pages/admin/plans";
 import AdminUsers from "@/pages/admin/users";
+import AdminSettingsPayment from "@/pages/admin/settings-payment";
+import AdminSettingsHomepage from "@/pages/admin/settings-homepage";
+import AdminPortal from "@/pages/admin-portal";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,6 +52,9 @@ function Router() {
       <Route path="/admin/kyc" component={AdminKyc} />
       <Route path="/admin/plans" component={AdminPlans} />
       <Route path="/admin/users" component={AdminUsers} />
+      <Route path="/admin/settings/payment" component={AdminSettingsPayment} />
+      <Route path="/admin/settings/homepage" component={AdminSettingsHomepage} />
+      <Route path="/admin-portal" component={AdminPortal} />
       <Route component={NotFound} />
     </Switch>
   );
