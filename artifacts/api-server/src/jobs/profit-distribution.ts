@@ -2,6 +2,7 @@ import { db, investmentsTable, plansTable, usersTable, transactionsTable } from 
 import { eq, and, lte } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 import { logger } from "../lib/logger";
+import { sendEmail, emailProfitCredited } from "../lib/email";
 
 export async function processCompletedInvestments() {
   try {
@@ -58,6 +59,14 @@ export async function processCompletedInvestments() {
         description: `Investment matured: ${inv.planName} — principal $${amount.toLocaleString()} + profit $${profit.toLocaleString()}`,
       });
 
+      const [user] = await db.select().from(usersTable).where(eq(usersTable.id, inv.userId));
+      if (user) {
+        sendEmail(
+          user.email,
+          `Profit Credited — ${inv.planName} Investment Matured 💰`,
+          emailProfitCredited(user.firstName, inv.planName, Number(inv.amount), profit, totalReturn)
+        ).catch(() => {});
+      }
       logger.info(
         { investmentId: inv.id, userId: inv.userId, profit, totalReturn },
         "Investment completed — profit distributed"

@@ -3,6 +3,12 @@ import { db, withdrawalsTable, usersTable, transactionsTable } from "@workspace/
 import { eq } from "drizzle-orm";
 import { authMiddleware, adminMiddleware, type AuthRequest } from "../middlewares/auth";
 import { CreateWithdrawalBody, RejectWithdrawalBody } from "@workspace/api-zod";
+import {
+  sendEmail,
+  emailWithdrawalSubmitted,
+  emailWithdrawalApproved,
+  emailWithdrawalRejected,
+} from "../lib/email";
 
 const router = Router();
 
@@ -19,7 +25,7 @@ router.get("/withdrawals", authMiddleware, async (req: AuthRequest, res) => {
   try {
     const wds = await db.select().from(withdrawalsTable).where(eq(withdrawalsTable.userId, req.userId!));
     return res.json(wds.map(w => formatWithdrawal(w)));
-  } catch (e) {
+  } catch {
     return res.status(500).json({ error: "Failed to fetch withdrawals" });
   }
 });
@@ -46,8 +52,13 @@ router.post("/withdrawals", authMiddleware, async (req: AuthRequest, res) => {
       status: "pending",
       description: `Withdrawal of $${amount} to ${walletAddress.slice(0, 10)}... pending approval`,
     });
+    sendEmail(
+      user.email,
+      "Withdrawal Request Received — Zentrivex",
+      emailWithdrawalSubmitted(user.firstName, amount, walletAddress, new Date())
+    ).catch(() => {});
     return res.status(201).json(formatWithdrawal(wd));
-  } catch (e) {
+  } catch {
     return res.status(500).json({ error: "Failed to create withdrawal" });
   }
 });
@@ -58,7 +69,7 @@ router.get("/admin/withdrawals", authMiddleware, adminMiddleware, async (req: Au
     const users = await db.select().from(usersTable);
     const userMap = Object.fromEntries(users.map(u => [u.id, u]));
     return res.json(wds.map(w => formatWithdrawal(w, userMap[w.userId])));
-  } catch (e) {
+  } catch {
     return res.status(500).json({ error: "Failed to fetch withdrawals" });
   }
 });
@@ -77,8 +88,16 @@ router.patch("/admin/withdrawals/:id/approve", authMiddleware, adminMiddleware, 
       status: "completed",
       description: `Withdrawal of $${wd.amount} approved`,
     });
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, wd.userId));
+    if (user) {
+      sendEmail(
+        user.email,
+        "Withdrawal Approved — Funds Sent ✓",
+        emailWithdrawalApproved(user.firstName, Number(wd.amount), wd.walletAddress)
+      ).catch(() => {});
+    }
     return res.json(formatWithdrawal(updated));
-  } catch (e) {
+  } catch {
     return res.status(500).json({ error: "Failed to approve withdrawal" });
   }
 });
@@ -94,8 +113,15 @@ router.patch("/admin/withdrawals/:id/reject", authMiddleware, adminMiddleware, a
     const [user] = await db.select().from(usersTable).where(eq(usersTable.id, wd.userId));
     await db.update(usersTable).set({ balance: String(Number(user.balance) + Number(wd.amount)), updatedAt: new Date() }).where(eq(usersTable.id, wd.userId));
     const [updated] = await db.update(withdrawalsTable).set({ status: "rejected", rejectionReason: parsed.data.reason, updatedAt: new Date() }).where(eq(withdrawalsTable.id, id)).returning();
+    if (user) {
+      sendEmail(
+        user.email,
+        "Withdrawal Rejected — Funds Returned",
+        emailWithdrawalRejected(user.firstName, Number(wd.amount), parsed.data.reason)
+      ).catch(() => {});
+    }
     return res.json(formatWithdrawal(updated));
-  } catch (e) {
+  } catch {
     return res.status(500).json({ error: "Failed to reject withdrawal" });
   }
 });

@@ -4,6 +4,7 @@ import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { authMiddleware, generateToken, type AuthRequest } from "../middlewares/auth";
 import { RegisterBody, LoginBody } from "@workspace/api-zod";
+import { sendEmail, emailWelcome } from "../lib/email";
 
 const router = Router();
 
@@ -20,6 +21,11 @@ router.post("/auth/register", async (req, res) => {
     }).returning();
     const token = generateToken(user.id, user.role);
     const { password: _, ...safeUser } = user;
+    sendEmail(
+      user.email,
+      "Welcome to Zentrivex — Your Account is Ready 🎉",
+      emailWelcome(user.firstName, user.email)
+    ).catch(() => {});
     return res.status(201).json({ user: { ...safeUser, balance: Number(user.balance) }, token });
   } catch (e) {
     return res.status(500).json({ error: "Registration failed" });

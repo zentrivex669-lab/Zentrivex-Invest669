@@ -3,6 +3,12 @@ import { db, kycTable, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { authMiddleware, adminMiddleware, type AuthRequest } from "../middlewares/auth";
 import { SubmitKycBody, RejectKycBody } from "@workspace/api-zod";
+import {
+  sendEmail,
+  emailKycSubmitted,
+  emailKycApproved,
+  emailKycRejected,
+} from "../lib/email";
 
 const router = Router();
 
@@ -19,7 +25,7 @@ router.get("/kyc", authMiddleware, async (req: AuthRequest, res) => {
     const [kyc] = await db.select().from(kycTable).where(eq(kycTable.userId, req.userId!));
     if (!kyc) return res.status(404).json({ error: "KYC not found" });
     return res.json(formatKyc(kyc));
-  } catch (e) {
+  } catch {
     return res.status(404).json({ error: "KYC not found" });
   }
 });
@@ -41,8 +47,16 @@ router.post("/kyc", authMiddleware, async (req: AuthRequest, res) => {
       kyc = created;
     }
     await db.update(usersTable).set({ kycStatus: "pending", updatedAt: new Date() }).where(eq(usersTable.id, req.userId!));
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!));
+    if (user) {
+      sendEmail(
+        user.email,
+        "KYC Submitted for Review — Zentrivex",
+        emailKycSubmitted(user.firstName)
+      ).catch(() => {});
+    }
     return res.status(201).json(formatKyc(kyc));
-  } catch (e) {
+  } catch {
     return res.status(500).json({ error: "Failed to submit KYC" });
   }
 });
@@ -53,7 +67,7 @@ router.get("/admin/kyc", authMiddleware, adminMiddleware, async (req: AuthReques
     const users = await db.select().from(usersTable);
     const userMap = Object.fromEntries(users.map(u => [u.id, u]));
     return res.json(kycs.map(k => formatKyc(k, userMap[k.userId])));
-  } catch (e) {
+  } catch {
     return res.status(500).json({ error: "Failed to fetch KYC" });
   }
 });
@@ -65,8 +79,16 @@ router.patch("/admin/kyc/:id/approve", authMiddleware, adminMiddleware, async (r
     if (!kyc) return res.status(404).json({ error: "KYC not found" });
     const [updated] = await db.update(kycTable).set({ status: "approved", reviewedAt: new Date(), updatedAt: new Date() }).where(eq(kycTable.id, id)).returning();
     await db.update(usersTable).set({ kycStatus: "approved", updatedAt: new Date() }).where(eq(usersTable.id, kyc.userId));
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, kyc.userId));
+    if (user) {
+      sendEmail(
+        user.email,
+        "Identity Verified — Your KYC is Approved ✓",
+        emailKycApproved(user.firstName)
+      ).catch(() => {});
+    }
     return res.json(formatKyc(updated));
-  } catch (e) {
+  } catch {
     return res.status(500).json({ error: "Failed to approve KYC" });
   }
 });
@@ -80,8 +102,16 @@ router.patch("/admin/kyc/:id/reject", authMiddleware, adminMiddleware, async (re
     if (!kyc) return res.status(404).json({ error: "KYC not found" });
     const [updated] = await db.update(kycTable).set({ status: "rejected", rejectionReason: parsed.data.reason, reviewedAt: new Date(), updatedAt: new Date() }).where(eq(kycTable.id, id)).returning();
     await db.update(usersTable).set({ kycStatus: "rejected", updatedAt: new Date() }).where(eq(usersTable.id, kyc.userId));
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, kyc.userId));
+    if (user) {
+      sendEmail(
+        user.email,
+        "KYC Verification Failed — Action Required",
+        emailKycRejected(user.firstName, parsed.data.reason)
+      ).catch(() => {});
+    }
     return res.json(formatKyc(updated));
-  } catch (e) {
+  } catch {
     return res.status(500).json({ error: "Failed to reject KYC" });
   }
 });
