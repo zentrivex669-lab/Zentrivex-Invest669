@@ -7,6 +7,7 @@ import depositsRouter from "./deposits";
 import withdrawalsRouter from "./withdrawals";
 import kycRouter from "./kyc";
 import dashboardRouter from "./dashboard";
+import settingsRouter from "./settings";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(depositsRouter);
 router.use(withdrawalsRouter);
 router.use(kycRouter);
 router.use(dashboardRouter);
+router.use(settingsRouter);
 
 export default router;
