@@ -358,6 +358,15 @@ export const GetKycResponse = zod.object({
  */
 export const SubmitKycBody = zod.object({
   "documentType": zod.enum(['passport', 'drivers_license', 'national_id']),
+  "fullName": zod.string().optional(),
+  "dateOfBirth": zod.string().optional(),
+  "nationality": zod.string().optional(),
+  "phone": zod.string().optional(),
+  "address": zod.string().optional(),
+  "city": zod.string().optional(),
+  "state": zod.string().optional(),
+  "country": zod.string().optional(),
+  "postalCode": zod.string().optional(),
   "frontImage": zod.string().optional(),
   "backImage": zod.string().optional(),
   "selfieImage": zod.string().optional()

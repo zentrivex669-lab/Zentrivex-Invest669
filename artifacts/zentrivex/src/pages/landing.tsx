@@ -504,7 +504,7 @@ export default function LandingPage() {
             <span className="font-bold tracking-tight">Zentrivex</span>
             <span className="text-xs text-muted-foreground ml-2">Real Estate & Market Investments</span>
           </div>
-          <p className="text-xs text-muted-foreground">© 2025 Zentrivex Ltd. All rights reserved.</p>
+          <p className="text-xs text-muted-foreground">© 2026 Zentrivex Ltd. All rights reserved.</p>
         </div>
       </footer>
     </div>
