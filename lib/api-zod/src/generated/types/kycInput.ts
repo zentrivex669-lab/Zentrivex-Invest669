@@ -9,6 +9,15 @@ import type { KycInputDocumentType } from './kycInputDocumentType';
 
 export interface KycInput {
   documentType: KycInputDocumentType;
+  fullName?: string;
+  dateOfBirth?: string;
+  nationality?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
   frontImage?: string;
   backImage?: string;
   selfieImage?: string;

@@ -4,6 +4,14 @@ import { logger } from "./logger";
 const EMAIL_FROM = process.env["EMAIL_USER"] ?? "zentrivex669@gmail.com";
 const EMAIL_PASS = process.env["EMAIL_PASS"];
 
+function getAppUrl(): string {
+  const domains = process.env["REPLIT_DOMAINS"] || process.env["REPLIT_DEV_DOMAIN"];
+  const domain = domains?.split(",")[0]?.trim();
+  return domain ? `https://${domain}` : "https://zentrivex.repl.co";
+}
+
+const APP_URL = getAppUrl();
+
 function createTransport() {
   if (!EMAIL_PASS) {
     logger.warn("EMAIL_PASS not set — email sending disabled");
@@ -58,7 +66,7 @@ ${previewText ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0
 
       <!-- Footer -->
       <tr><td style="background:#040f0e;border:1px solid #1a3530;border-top:none;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
-        <p style="color:#4a6b60;font-size:12px;margin:0 0 8px;">© 2025 Zentrivex Ltd. All rights reserved.</p>
+        <p style="color:#4a6b60;font-size:12px;margin:0 0 8px;">© 2026 Zentrivex Ltd. All rights reserved.</p>
         <p style="color:#4a6b60;font-size:11px;margin:0;">This email was sent from a no-reply address. Do not reply.</p>
         <p style="color:#4a6b60;font-size:11px;margin:8px 0 0;">Zentrivex · Real Estate &amp; Stock Market Investments</p>
       </td></tr>
@@ -155,7 +163,7 @@ export function emailWelcome(firstName: string, email: string) {
       infoRow("Account Status", "Active ✓", true)
     )}
     ${para("To start investing, complete your KYC verification and make your first deposit. Our team reviews deposits within 24 hours.")}
-    ${button("Go to Dashboard →", "https://zentrivex.repl.co/dashboard")}
+    ${button("Go to Dashboard →", "${APP_URL}/dashboard")}
   `;
   return baseTemplate(content, `Welcome ${firstName}! Your Zentrivex account is ready.`);
 }
@@ -172,7 +180,7 @@ export function emailDepositSubmitted(firstName: string, amount: number, method:
       infoRow("Status", "Pending Review")
     )}
     ${alertBox("warning", "Please do not make duplicate payments while your deposit is under review. You will be notified once it is approved.")}
-    ${button("Track Your Deposit", "https://zentrivex.repl.co/dashboard/deposit")}
+    ${button("Track Your Deposit", "${APP_URL}/dashboard/deposit")}
   `;
   return baseTemplate(content, `Deposit of $${amount} received — under review`);
 }
@@ -189,7 +197,7 @@ export function emailDepositApproved(firstName: string, amount: number, newBalan
       infoRow("Status", "Approved ✓")
     )}
     ${para("Your capital is now ready to be deployed. Browse our investment plans to start generating returns.")}
-    ${button("Browse Investment Plans", "https://zentrivex.repl.co/dashboard/plans")}
+    ${button("Browse Investment Plans", "${APP_URL}/dashboard/plans")}
   `;
   return baseTemplate(content, `Deposit approved — $${amount} credited to your account`);
 }
@@ -205,7 +213,7 @@ export function emailDepositRejected(firstName: string, amount: number, reason: 
     )}
     ${alertBox("danger", `<strong>Reason:</strong> ${reason}`)}
     ${para("If you believe this is an error or need assistance, please contact our support team with your transaction details.")}
-    ${button("Try Again", "https://zentrivex.repl.co/dashboard/deposit")}
+    ${button("Try Again", "${APP_URL}/dashboard/deposit")}
   `;
   return baseTemplate(content, `Deposit rejected — action required`);
 }
@@ -223,7 +231,7 @@ export function emailWithdrawalSubmitted(firstName: string, amount: number, addr
       infoRow("Status", "Processing")
     )}
     ${alertBox("warning", "Please ensure your withdrawal address is correct. Transactions to incorrect addresses cannot be reversed.")}
-    ${button("View Withdrawal Status", "https://zentrivex.repl.co/dashboard/withdraw")}
+    ${button("View Withdrawal Status", "${APP_URL}/dashboard/withdraw")}
   `;
   return baseTemplate(content, `Withdrawal of $${amount} is being processed`);
 }
@@ -241,7 +249,7 @@ export function emailWithdrawalApproved(firstName: string, amount: number, addre
       infoRow("Status", "Completed ✓")
     )}
     ${para("Network transfer times vary. Crypto withdrawals typically confirm within 30–60 minutes. Bank wire transfers may take 1–3 business days.")}
-    ${button("View Transaction History", "https://zentrivex.repl.co/dashboard/transactions")}
+    ${button("View Transaction History", "${APP_URL}/dashboard/transactions")}
   `;
   return baseTemplate(content, `Withdrawal of $${amount} has been sent`);
 }
@@ -257,7 +265,7 @@ export function emailWithdrawalRejected(firstName: string, amount: number, reaso
     )}
     ${alertBox("danger", `<strong>Reason:</strong> ${reason}`)}
     ${para("Your balance has been restored. If you believe this is an error or need further assistance, please contact support.")}
-    ${button("Go to Dashboard", "https://zentrivex.repl.co/dashboard")}
+    ${button("Go to Dashboard", "${APP_URL}/dashboard")}
   `;
   return baseTemplate(content, `Withdrawal rejected — funds returned to your balance`);
 }
@@ -278,7 +286,7 @@ export function emailInvestmentPurchased(firstName: string, planName: string, am
       infoRow("Maturity Date", endDate.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }))
     )}
     ${alertBox("success", "Your investment is now generating returns. You will receive an email and a balance credit when your investment matures.")}
-    ${button("Track Your Investment", "https://zentrivex.repl.co/dashboard/investments")}
+    ${button("Track Your Investment", "${APP_URL}/dashboard/investments")}
   `;
   return baseTemplate(content, `${planName} investment activated — ${roiPercent}% ROI`);
 }
@@ -296,7 +304,7 @@ export function emailProfitCredited(firstName: string, planName: string, princip
       infoRow("Total Credited", `$${totalReturn.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, true)
     )}
     ${para("Reinvest your returns to compound your wealth. Our premium plans offer up to 42.5% ROI.")}
-    ${button("Reinvest Now", "https://zentrivex.repl.co/dashboard/plans")}
+    ${button("Reinvest Now", "${APP_URL}/dashboard/plans")}
   `;
   return baseTemplate(content, `$${profit.toLocaleString()} profit credited — your investment matured!`);
 }
@@ -312,7 +320,7 @@ export function emailReferralBonus(firstName: string, referredName: string, bonu
       infoRow("New Balance", `$${newBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, true)
     )}
     ${para("Keep sharing your referral link to keep earning bonuses every time a friend invests.")}
-    ${button("View Your Referrals", "https://zentrivex.repl.co/dashboard/referrals")}
+    ${button("View Your Referrals", "${APP_URL}/dashboard/referrals")}
   `;
   return baseTemplate(content, `Referral bonus earned — $${bonusAmount.toLocaleString()} credited!`);
 }
@@ -324,7 +332,7 @@ export function emailKycSubmitted(firstName: string) {
     ${para(`Hi <strong style="color:#fff;">${firstName}</strong>, thank you for submitting your identity verification. Our compliance team typically reviews KYC submissions within 24–48 hours.`)}
     ${alertBox("warning", "Do not submit duplicate applications while your current one is under review. You will be notified by email once the review is complete.")}
     ${para("KYC verification is required before making withdrawals and accessing premium investment plans.")}
-    ${button("View KYC Status", "https://zentrivex.repl.co/dashboard/kyc")}
+    ${button("View KYC Status", "${APP_URL}/dashboard/kyc")}
   `;
   return baseTemplate(content, `KYC submitted — under review`);
 }
@@ -336,7 +344,7 @@ export function emailKycApproved(firstName: string) {
     ${para(`Congratulations, <strong style="color:#fff;">${firstName}</strong>! Your identity has been verified and your account is now fully unlocked.`)}
     ${alertBox("success", "Your account is now fully verified. You can now access all investment plans and process withdrawals without restrictions.")}
     ${para("With full access enabled, explore our high-yield investment plans and start building your portfolio today.")}
-    ${button("Explore Investment Plans", "https://zentrivex.repl.co/dashboard/plans")}
+    ${button("Explore Investment Plans", "${APP_URL}/dashboard/plans")}
   `;
   return baseTemplate(content, `KYC Approved — your account is fully verified!`);
 }
@@ -354,7 +362,7 @@ export function emailKycRejected(firstName: string, reason: string) {
       <li>Matching the personal information in your account</li>
       <li>Government-issued (passport, national ID, or driver's license)</li>
     </ul>
-    ${button("Resubmit KYC", "https://zentrivex.repl.co/dashboard/kyc")}
+    ${button("Resubmit KYC", "${APP_URL}/dashboard/kyc")}
   `;
   return baseTemplate(content, `KYC rejected — please resubmit your documents`);
 }

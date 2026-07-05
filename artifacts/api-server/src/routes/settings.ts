@@ -87,7 +87,7 @@ export const DEFAULT_HOMEPAGE = {
   stat4Value: "24K+",
   ctaButtonText: "Start Investing",
   badgeText: "REAL ESTATE & STOCK MARKET INVESTMENTS",
-  footerDisclaimer: "© 2025 Zentrivex Ltd. All rights reserved. Investments carry risk. Past performance is not indicative of future results.",
+  footerDisclaimer: "© 2026 Zentrivex Ltd. All rights reserved. Investments carry risk. Past performance is not indicative of future results.",
 };
 
 export const DEFAULT_REFERRAL_SETTINGS = {
