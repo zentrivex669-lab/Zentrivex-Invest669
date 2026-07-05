@@ -15,10 +15,11 @@ export const investmentsTable = pgTable("investments", {
   status: investmentStatusEnum("status").notNull().default("active"),
   startDate: timestamp("start_date").notNull().defaultNow(),
   endDate: timestamp("end_date").notNull(),
+  lastProfitAt: timestamp("last_profit_at").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const insertInvestmentSchema = createInsertSchema(investmentsTable).omit({ id: true, createdAt: true, updatedAt: true, profit: true });
+export const insertInvestmentSchema = createInsertSchema(investmentsTable).omit({ id: true, createdAt: true, updatedAt: true, profit: true, lastProfitAt: true });
 export type InsertInvestment = z.infer<typeof insertInvestmentSchema>;
 export type Investment = typeof investmentsTable.$inferSelect;
