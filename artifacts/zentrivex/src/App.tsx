@@ -14,6 +14,7 @@ import WithdrawPage from "@/pages/dashboard/withdraw";
 import InvestmentsPage from "@/pages/dashboard/investments";
 import KycPage from "@/pages/dashboard/kyc";
 import TransactionsPage from "@/pages/dashboard/transactions";
+import ReferralsPage from "@/pages/dashboard/referrals";
 import AdminDashboard from "@/pages/admin/index";
 import AdminDeposits from "@/pages/admin/deposits";
 import AdminWithdrawals from "@/pages/admin/withdrawals";
@@ -22,6 +23,7 @@ import AdminPlans from "@/pages/admin/plans";
 import AdminUsers from "@/pages/admin/users";
 import AdminSettingsPayment from "@/pages/admin/settings-payment";
 import AdminSettingsHomepage from "@/pages/admin/settings-homepage";
+import AdminSettingsReferral from "@/pages/admin/settings-referral";
 import AdminPortal from "@/pages/admin-portal";
 
 const queryClient = new QueryClient({
@@ -46,6 +48,7 @@ function Router() {
       <Route path="/dashboard/investments" component={InvestmentsPage} />
       <Route path="/dashboard/kyc" component={KycPage} />
       <Route path="/dashboard/transactions" component={TransactionsPage} />
+      <Route path="/dashboard/referrals" component={ReferralsPage} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/deposits" component={AdminDeposits} />
       <Route path="/admin/withdrawals" component={AdminWithdrawals} />
@@ -54,6 +57,7 @@ function Router() {
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/settings/payment" component={AdminSettingsPayment} />
       <Route path="/admin/settings/homepage" component={AdminSettingsHomepage} />
+      <Route path="/admin/settings/referral" component={AdminSettingsReferral} />
       <Route path="/admin-portal" component={AdminPortal} />
       <Route component={NotFound} />
     </Switch>

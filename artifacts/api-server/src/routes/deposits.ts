@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { db, depositsTable, usersTable, transactionsTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { db, depositsTable, usersTable, transactionsTable, settingsTable } from "@workspace/db";
+import { eq, and } from "drizzle-orm";
 import { authMiddleware, adminMiddleware, type AuthRequest } from "../middlewares/auth";
 import { CreateDepositBody, RejectDepositBody } from "@workspace/api-zod";
 import {
@@ -8,7 +8,49 @@ import {
   emailDepositSubmitted,
   emailDepositApproved,
   emailDepositRejected,
+  emailReferralBonus,
 } from "../lib/email";
+import { DEFAULT_REFERRAL_SETTINGS } from "./settings";
+
+async function getReferralSettings() {
+  const [row] = await db.select().from(settingsTable).where(eq(settingsTable.key, "referral_settings"));
+  if (!row) return DEFAULT_REFERRAL_SETTINGS;
+  try { return JSON.parse(row.value); } catch { return DEFAULT_REFERRAL_SETTINGS; }
+}
+
+async function creditReferralBonusIfEligible(depositUserId: number, depositAmount: number) {
+  const [depositUser] = await db.select().from(usersTable).where(eq(usersTable.id, depositUserId));
+  if (!depositUser || !depositUser.referredBy) return;
+
+  const settings = await getReferralSettings();
+  if (!settings.enabled || settings.bonusPercent <= 0) return;
+
+  const priorApprovedDeposits = await db.select().from(depositsTable).where(
+    and(eq(depositsTable.userId, depositUserId), eq(depositsTable.status, "approved"))
+  );
+  if (priorApprovedDeposits.length > 1) return;
+
+  const [referrer] = await db.select().from(usersTable).where(eq(usersTable.id, depositUser.referredBy));
+  if (!referrer) return;
+
+  const bonus = depositAmount * (settings.bonusPercent / 100);
+  if (bonus <= 0) return;
+
+  const newBalance = Number(referrer.balance) + bonus;
+  await db.update(usersTable).set({ balance: String(newBalance), updatedAt: new Date() }).where(eq(usersTable.id, referrer.id));
+  await db.insert(transactionsTable).values({
+    userId: referrer.id,
+    type: "referral",
+    amount: String(bonus),
+    status: "completed",
+    description: `Referral bonus — ${depositUser.firstName} ${depositUser.lastName}'s first deposit`,
+  });
+  sendEmail(
+    referrer.email,
+    "Referral Bonus Earned 🎁 — Zentrivex",
+    emailReferralBonus(referrer.firstName, `${depositUser.firstName} ${depositUser.lastName}`, bonus, newBalance)
+  ).catch(() => {});
+}
 
 const router = Router();
 
@@ -102,6 +144,7 @@ router.patch("/admin/deposits/:id/approve", authMiddleware, adminMiddleware, asy
         emailDepositApproved(user.firstName, Number(dep.amount), newBalance)
       ).catch(() => {});
     }
+    creditReferralBonusIfEligible(dep.userId, Number(dep.amount)).catch(() => {});
     return res.json(formatDeposit(updated));
   } catch {
     return res.status(500).json({ error: "Failed to approve deposit" });
