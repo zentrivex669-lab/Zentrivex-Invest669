@@ -6,13 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface RegisterInput {
-  email: string;
-  /** @minLength 8 */
-  password: string;
+export interface ReferredUser {
+  id: number;
   firstName: string;
   lastName: string;
-  /** @nullable */
-  phone?: string | null;
-  referralCode?: string;
+  createdAt: Date;
+  hasDeposited: boolean;
 }

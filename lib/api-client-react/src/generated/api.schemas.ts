@@ -17,6 +17,7 @@ export interface RegisterInput {
   lastName: string;
   /** @nullable */
   phone?: string | null;
+  referralCode?: string;
 }
 
 export interface LoginInput {
@@ -53,6 +54,8 @@ export interface User {
   balance: number;
   kycStatus: UserKycStatus;
   isActive?: boolean;
+  /** @nullable */
+  referralCode?: string | null;
   createdAt: string;
 }
 
@@ -314,5 +317,28 @@ export interface Transaction {
   /** @nullable */
   description?: string | null;
   createdAt: string;
+}
+
+export interface ReferralSettings {
+  enabled: boolean;
+  bonusPercent: number;
+}
+
+export interface ReferredUser {
+  id: number;
+  firstName: string;
+  lastName: string;
+  createdAt: string;
+  hasDeposited: boolean;
+}
+
+export interface ReferralStats {
+  referralCode: string;
+  referralLink: string;
+  totalReferred: number;
+  totalEarned: number;
+  bonusPercent: number;
+  enabled: boolean;
+  referredUsers: ReferredUser[];
 }
 

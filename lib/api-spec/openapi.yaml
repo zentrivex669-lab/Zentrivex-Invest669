@@ -25,6 +25,8 @@ tags:
     description: Dashboard summaries
   - name: admin
     description: Admin operations
+  - name: referrals
+    description: Referral program
 paths:
   /healthz:
     get:
@@ -612,6 +614,51 @@ paths:
                 items:
                   $ref: "#/components/schemas/Transaction"
 
+  /referrals:
+    get:
+      operationId: getReferrals
+      tags: [referrals]
+      summary: Get current user's referral stats and code
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReferralStats"
+
+  /settings/referral:
+    get:
+      operationId: getReferralSettings
+      tags: [referrals]
+      summary: Get public referral program settings
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReferralSettings"
+
+  /admin/settings/referral:
+    put:
+      operationId: updateReferralSettings
+      tags: [admin]
+      summary: Update referral program settings (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReferralSettings"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReferralSettings"
+
 components:
   schemas:
     HealthStatus:
@@ -638,6 +685,8 @@ components:
           type: string
         phone:
           type: ["string", "null"]
+        referralCode:
+          type: string
 
     LoginInput:
       type: object
@@ -681,6 +730,8 @@ components:
           enum: [none, pending, approved, rejected]
         isActive:
           type: boolean
+        referralCode:
+          type: ["string", "null"]
         createdAt:
           type: string
           format: date-time
@@ -1005,3 +1056,49 @@ components:
         createdAt:
           type: string
           format: date-time
+
+    ReferralSettings:
+      type: object
+      required: [enabled, bonusPercent]
+      properties:
+        enabled:
+          type: boolean
+        bonusPercent:
+          type: number
+
+    ReferredUser:
+      type: object
+      required: [id, firstName, lastName, createdAt, hasDeposited]
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        hasDeposited:
+          type: boolean
+
+    ReferralStats:
+      type: object
+      required: [referralCode, referralLink, totalReferred, totalEarned, bonusPercent, enabled, referredUsers]
+      properties:
+        referralCode:
+          type: string
+        referralLink:
+          type: string
+        totalReferred:
+          type: integer
+        totalEarned:
+          type: number
+        bonusPercent:
+          type: number
+        enabled:
+          type: boolean
+        referredUsers:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReferredUser"

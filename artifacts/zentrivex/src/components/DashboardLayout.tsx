@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   LayoutDashboard, TrendingUp, ArrowDownCircle, ArrowUpCircle,
-  Briefcase, Shield, List, LogOut, Menu, X, ChevronRight, Building2
+  Briefcase, Shield, List, LogOut, Menu, X, ChevronRight, Building2, Gift
 } from "lucide-react";
 
 const navItems = [
@@ -16,6 +16,7 @@ const navItems = [
   { href: "/dashboard/investments", label: "My Investments", icon: Briefcase },
   { href: "/dashboard/kyc", label: "KYC Verification", icon: Shield },
   { href: "/dashboard/transactions", label: "Transactions", icon: List },
+  { href: "/dashboard/referrals", label: "Refer & Earn", icon: Gift },
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {

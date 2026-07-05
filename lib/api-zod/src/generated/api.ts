@@ -28,7 +28,8 @@ export const RegisterBody = zod.object({
   "password": zod.string().min(registerBodyPasswordMin),
   "firstName": zod.string(),
   "lastName": zod.string(),
-  "phone": zod.string().nullish()
+  "phone": zod.string().nullish(),
+  "referralCode": zod.string().optional()
 })
 
 
@@ -51,6 +52,7 @@ export const LoginResponse = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "token": zod.string()
@@ -70,6 +72,7 @@ export const GetMeResponse = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 })
 
@@ -259,6 +262,7 @@ export const ListDepositsResponseItem = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "createdAt": zod.coerce.date(),
@@ -300,6 +304,7 @@ export const ListWithdrawalsResponseItem = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "createdAt": zod.coerce.date(),
@@ -340,6 +345,7 @@ export const GetKycResponse = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "createdAt": zod.coerce.date(),
@@ -352,15 +358,6 @@ export const GetKycResponse = zod.object({
  */
 export const SubmitKycBody = zod.object({
   "documentType": zod.enum(['passport', 'drivers_license', 'national_id']),
-  "fullName": zod.string().optional(),
-  "dateOfBirth": zod.string().optional(),
-  "nationality": zod.string().optional(),
-  "phone": zod.string().optional(),
-  "address": zod.string().optional(),
-  "city": zod.string().optional(),
-  "state": zod.string().optional(),
-  "country": zod.string().optional(),
-  "postalCode": zod.string().optional(),
   "frontImage": zod.string().optional(),
   "backImage": zod.string().optional(),
   "selfieImage": zod.string().optional()
@@ -415,6 +412,7 @@ export const GetAdminDashboardResponse = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "createdAt": zod.coerce.date(),
@@ -438,6 +436,7 @@ export const GetAdminDashboardResponse = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "createdAt": zod.coerce.date(),
@@ -459,6 +458,7 @@ export const ListUsersResponseItem = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 })
 export const ListUsersResponse = zod.array(ListUsersResponseItem)
@@ -481,6 +481,7 @@ export const GetUserResponse = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 })
 
@@ -508,6 +509,7 @@ export const UpdateUserResponse = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 })
 
@@ -535,6 +537,7 @@ export const ListAdminDepositsResponseItem = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "createdAt": zod.coerce.date(),
@@ -570,6 +573,7 @@ export const ApproveDepositResponse = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "createdAt": zod.coerce.date(),
@@ -608,6 +612,7 @@ export const RejectDepositResponse = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "createdAt": zod.coerce.date(),
@@ -636,6 +641,7 @@ export const ListAdminWithdrawalsResponseItem = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "createdAt": zod.coerce.date(),
@@ -669,6 +675,7 @@ export const ApproveWithdrawalResponse = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "createdAt": zod.coerce.date(),
@@ -705,6 +712,7 @@ export const RejectWithdrawalResponse = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "createdAt": zod.coerce.date(),
@@ -734,6 +742,7 @@ export const ListAdminKycResponseItem = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "createdAt": zod.coerce.date(),
@@ -768,6 +777,7 @@ export const ApproveKycResponse = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "createdAt": zod.coerce.date(),
@@ -805,6 +815,7 @@ export const RejectKycResponse = zod.object({
   "balance": zod.number(),
   "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
   "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
   "createdAt": zod.coerce.date()
 }).optional(),
   "createdAt": zod.coerce.date(),
@@ -825,5 +836,48 @@ export const ListTransactionsResponseItem = zod.object({
   "createdAt": zod.coerce.date()
 })
 export const ListTransactionsResponse = zod.array(ListTransactionsResponseItem)
+
+
+/**
+ * @summary Get current user's referral stats and code
+ */
+export const GetReferralsResponse = zod.object({
+  "referralCode": zod.string(),
+  "referralLink": zod.string(),
+  "totalReferred": zod.number(),
+  "totalEarned": zod.number(),
+  "bonusPercent": zod.number(),
+  "enabled": zod.boolean(),
+  "referredUsers": zod.array(zod.object({
+  "id": zod.number(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "createdAt": zod.coerce.date(),
+  "hasDeposited": zod.boolean()
+}))
+})
+
+
+/**
+ * @summary Get public referral program settings
+ */
+export const GetReferralSettingsResponse = zod.object({
+  "enabled": zod.boolean(),
+  "bonusPercent": zod.number()
+})
+
+
+/**
+ * @summary Update referral program settings (admin)
+ */
+export const UpdateReferralSettingsBody = zod.object({
+  "enabled": zod.boolean(),
+  "bonusPercent": zod.number()
+})
+
+export const UpdateReferralSettingsResponse = zod.object({
+  "enabled": zod.boolean(),
+  "bonusPercent": zod.number()
+})
 
 

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, ArrowDownCircle, ArrowUpCircle, Shield,
   TrendingUp, Users, LogOut, Menu, X, ChevronRight, Building2,
-  CreditCard, Home
+  CreditCard, Home, Gift
 } from "lucide-react";
 
 const navItems = [
@@ -17,6 +17,7 @@ const navItems = [
   { href: "/admin/users", label: "Investors", icon: Users },
   { href: "/admin/settings/payment", label: "Payment Methods", icon: CreditCard },
   { href: "/admin/settings/homepage", label: "Edit Homepage", icon: Home },
+  { href: "/admin/settings/referral", label: "Referral Program", icon: Gift },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

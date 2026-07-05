@@ -90,6 +90,11 @@ export const DEFAULT_HOMEPAGE = {
   footerDisclaimer: "© 2025 Zentrivex Ltd. All rights reserved. Investments carry risk. Past performance is not indicative of future results.",
 };
 
+export const DEFAULT_REFERRAL_SETTINGS = {
+  enabled: true,
+  bonusPercent: 5,
+};
+
 async function getSetting(key: string, defaultValue: unknown) {
   const [row] = await db.select().from(settingsTable).where(eq(settingsTable.key, key));
   if (!row) return defaultValue;
@@ -152,6 +157,30 @@ router.put("/admin/settings/homepage", authMiddleware, adminMiddleware, async (r
     return res.json({ ok: true, settings: updated });
   } catch {
     return res.status(500).json({ error: "Failed to save homepage settings" });
+  }
+});
+
+router.get("/settings/referral", async (_req, res) => {
+  try {
+    const settings = await getSetting("referral_settings", DEFAULT_REFERRAL_SETTINGS);
+    return res.json(settings);
+  } catch {
+    return res.status(500).json({ error: "Failed to load referral settings" });
+  }
+});
+
+router.put("/admin/settings/referral", authMiddleware, adminMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const schema = z.object({
+      enabled: z.boolean(),
+      bonusPercent: z.number().min(0).max(100),
+    });
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: "Invalid referral settings data" });
+    await setSetting("referral_settings", parsed.data);
+    return res.json(parsed.data);
+  } catch {
+    return res.status(500).json({ error: "Failed to save referral settings" });
   }
 });
 

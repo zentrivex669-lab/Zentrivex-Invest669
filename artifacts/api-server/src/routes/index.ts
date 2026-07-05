@@ -8,6 +8,7 @@ import withdrawalsRouter from "./withdrawals";
 import kycRouter from "./kyc";
 import dashboardRouter from "./dashboard";
 import settingsRouter from "./settings";
+import referralsRouter from "./referrals";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(withdrawalsRouter);
 router.use(kycRouter);
 router.use(dashboardRouter);
 router.use(settingsRouter);
+router.use(referralsRouter);
 
 export default router;

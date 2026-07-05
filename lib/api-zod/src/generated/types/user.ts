@@ -19,5 +19,7 @@ export interface User {
   balance: number;
   kycStatus: UserKycStatus;
   isActive?: boolean;
+  /** @nullable */
+  referralCode?: string | null;
   createdAt: Date;
 }

@@ -7,9 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { PublicRoute } from "@/components/ProtectedRoute";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Gift } from "lucide-react";
+
+function getReferralCodeFromUrl(): string {
+  if (typeof window === "undefined") return "";
+  return new URLSearchParams(window.location.search).get("ref")?.trim() ?? "";
+}
 
 function RegisterForm() {
+  const referralCode = getReferralCodeFromUrl();
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", password: "", phone: "" });
   const [showPass, setShowPass] = useState(false);
   const { login } = useAuth();
@@ -43,6 +49,12 @@ function RegisterForm() {
           <h1 className="text-3xl font-black tracking-tight mb-2">Create your account</h1>
           <p className="text-muted-foreground">Join thousands of crypto investors</p>
         </div>
+        {referralCode && (
+          <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-xl px-4 py-3 mb-5 text-sm text-primary">
+            <Gift size={15} />
+            You were invited with referral code <span className="font-mono font-bold">{referralCode}</span>
+          </div>
+        )}
         <div className="bg-card border border-card-border rounded-2xl p-8 space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -72,7 +84,7 @@ function RegisterForm() {
             </div>
           </div>
           <Button className="w-full h-11 font-semibold" disabled={registerMutation.isPending}
-            onClick={() => registerMutation.mutate({ data: { firstName: form.firstName, lastName: form.lastName, email: form.email, password: form.password, phone: form.phone || undefined } })}>
+            onClick={() => registerMutation.mutate({ data: { firstName: form.firstName, lastName: form.lastName, email: form.email, password: form.password, phone: form.phone || undefined, referralCode: referralCode || undefined } })}>
             {registerMutation.isPending ? "Creating account..." : "Create Account"}
           </Button>
           <p className="text-xs text-muted-foreground text-center">By creating an account, you agree to our Terms of Service and Privacy Policy.</p>

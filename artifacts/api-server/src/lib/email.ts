@@ -301,6 +301,22 @@ export function emailProfitCredited(firstName: string, planName: string, princip
   return baseTemplate(content, `$${profit.toLocaleString()} profit credited — your investment matured!`);
 }
 
+export function emailReferralBonus(firstName: string, referredName: string, bonusAmount: number, newBalance: number) {
+  const content = `
+    ${heading("Referral Bonus Earned 🎁")}
+    ${subheading("Someone you invited just made their first deposit")}
+    ${para(`Great news, <strong style="color:#fff;">${firstName}</strong>! <strong style="color:#fff;">${referredName}</strong>, who joined Zentrivex using your referral link, just made their first deposit — and you've earned a referral bonus.`)}
+    ${alertBox("success", `<strong style="color:#86efac;">$${bonusAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}</strong> has been added to your account balance.`)}
+    ${infoTable(
+      infoRow("Referral Bonus", `$${bonusAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, true) +
+      infoRow("New Balance", `$${newBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, true)
+    )}
+    ${para("Keep sharing your referral link to keep earning bonuses every time a friend invests.")}
+    ${button("View Your Referrals", "https://zentrivex.repl.co/dashboard/referrals")}
+  `;
+  return baseTemplate(content, `Referral bonus earned — $${bonusAmount.toLocaleString()} credited!`);
+}
+
 export function emailKycSubmitted(firstName: string) {
   const content = `
     ${heading("KYC Submitted for Review")}
