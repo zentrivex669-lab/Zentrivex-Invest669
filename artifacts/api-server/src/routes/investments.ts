@@ -87,4 +87,31 @@ router.get("/investments/:id", authMiddleware, async (req: AuthRequest, res) => 
   }
 });
 
+router.get("/investments/:id/profit-history", authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const [inv] = await db.select().from(investmentsTable).where(and(eq(investmentsTable.id, id), eq(investmentsTable.userId, req.userId!)));
+    if (!inv) return res.status(404).json({ error: "Investment not found" });
+    const rows = await db
+      .select()
+      .from(transactionsTable)
+      .where(and(eq(transactionsTable.investmentId, id), eq(transactionsTable.type, "profit")))
+      .orderBy(transactionsTable.createdAt);
+
+    let cumulative = 0;
+    const history = rows.map(r => {
+      cumulative = parseFloat((cumulative + Number(r.amount)).toFixed(8));
+      return {
+        date: r.createdAt,
+        amount: Number(r.amount),
+        cumulativeProfit: cumulative,
+        description: r.description,
+      };
+    });
+    return res.json(history);
+  } catch (e) {
+    return res.status(500).json({ error: "Failed to fetch profit history" });
+  }
+});
+
 export default router;

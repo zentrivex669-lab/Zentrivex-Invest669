@@ -34,6 +34,7 @@ import type {
   Plan,
   PlanInput,
   PlanUpdate,
+  ProfitHistoryEntry,
   ReferralSettings,
   ReferralStats,
   RegisterInput,
@@ -1003,6 +1004,83 @@ export function useGetInvestment<TData = Awaited<ReturnType<typeof getInvestment
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetInvestmentQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetInvestmentProfitHistoryUrl = (id: number,) => {
+
+
+
+
+  return `/api/investments/${id}/profit-history`
+}
+
+/**
+ * @summary Get daily profit accrual history for an investment
+ */
+export const getInvestmentProfitHistory = async (id: number, options?: RequestInit): Promise<ProfitHistoryEntry[]> => {
+
+  return customFetch<ProfitHistoryEntry[]>(getGetInvestmentProfitHistoryUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetInvestmentProfitHistoryQueryKey = (id: number,) => {
+    return [
+    `/api/investments/${id}/profit-history`
+    ] as const;
+    }
+
+
+export const getGetInvestmentProfitHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getInvestmentProfitHistory>>, TError = ErrorType<unknown>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInvestmentProfitHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetInvestmentProfitHistoryQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getInvestmentProfitHistory>>> = ({ signal }) => getInvestmentProfitHistory(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getInvestmentProfitHistory>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetInvestmentProfitHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof getInvestmentProfitHistory>>>
+export type GetInvestmentProfitHistoryQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get daily profit accrual history for an investment
+ */
+
+export function useGetInvestmentProfitHistory<TData = Awaited<ReturnType<typeof getInvestmentProfitHistory>>, TError = ErrorType<unknown>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInvestmentProfitHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetInvestmentProfitHistoryQueryOptions(id,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

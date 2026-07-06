@@ -139,6 +139,14 @@ export interface InvestmentInput {
   amount: number;
 }
 
+export interface ProfitHistoryEntry {
+  date: string;
+  amount: number;
+  cumulativeProfit: number;
+  /** @nullable */
+  description?: string | null;
+}
+
 export type DepositStatus = typeof DepositStatus[keyof typeof DepositStatus];
 
 

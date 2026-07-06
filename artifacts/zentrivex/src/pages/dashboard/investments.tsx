@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useListInvestments } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Clock } from "lucide-react";
+import { TrendingUp, Clock, ChevronDown } from "lucide-react";
+import ProfitHistoryChart from "@/components/ProfitHistoryChart";
 
 function statusStyle(status: string) {
   if (status === "active") return "bg-blue-500/10 text-blue-400 border-blue-500/30";
@@ -14,6 +16,7 @@ function statusStyle(status: string) {
 
 function InvestmentsContent() {
   const { data: investments, isLoading } = useListInvestments();
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   return (
     <div className="space-y-6">
@@ -78,7 +81,7 @@ function InvestmentsContent() {
                 </div>
               </div>
               {inv.status === "active" && (
-                <div>
+                <div className="mb-4">
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock size={11} /> {Math.round(progress)}% complete</span>
                     <span className="text-xs text-muted-foreground">{daysLeft} days remaining</span>
@@ -86,6 +89,18 @@ function InvestmentsContent() {
                   <div className="h-2 bg-secondary rounded-full overflow-hidden">
                     <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
                   </div>
+                </div>
+              )}
+              <button
+                onClick={() => setExpandedId(expandedId === inv.id ? null : inv.id)}
+                className="w-full flex items-center justify-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors py-2 border-t border-card-border"
+              >
+                Profit History
+                <ChevronDown size={14} className={`transition-transform ${expandedId === inv.id ? "rotate-180" : ""}`} />
+              </button>
+              {expandedId === inv.id && (
+                <div className="pt-3">
+                  <ProfitHistoryChart investmentId={inv.id} />
                 </div>
               )}
             </div>

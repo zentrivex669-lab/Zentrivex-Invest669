@@ -25,6 +25,7 @@ export * from './loginInput';
 export * from './plan';
 export * from './planInput';
 export * from './planUpdate';
+export * from './profitHistoryEntry';
 export * from './referralSettings';
 export * from './referralStats';
 export * from './referredUser';
