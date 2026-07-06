@@ -245,6 +245,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/Investment"
 
+  /investments/{id}/profit-history:
+    get:
+      operationId: getInvestmentProfitHistory
+      tags: [investments]
+      summary: Get daily profit accrual history for an investment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProfitHistoryEntry"
+
   /deposits:
     get:
       operationId: listDeposits
@@ -847,6 +868,20 @@ components:
           type: integer
         amount:
           type: number
+
+    ProfitHistoryEntry:
+      type: object
+      required: [date, amount, cumulativeProfit]
+      properties:
+        date:
+          type: string
+          format: date-time
+        amount:
+          type: number
+        cumulativeProfit:
+          type: number
+        description:
+          type: ["string", "null"]
 
     Deposit:
       type: object

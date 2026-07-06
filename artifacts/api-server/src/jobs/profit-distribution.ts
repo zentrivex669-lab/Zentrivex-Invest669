@@ -74,6 +74,7 @@ export async function processDailyProfits() {
           amount: creditAmount.toString(),
           status: "completed",
           description: `Daily profit — ${inv.planName} (${newDays} day${newDays > 1 ? "s" : ""})`,
+          investmentId: inv.id,
         });
 
         logger.info(
@@ -114,6 +115,7 @@ export async function processDailyProfits() {
           amount: principalAndRemainder.toString(),
           status: "completed",
           description: `Investment matured: ${inv.planName} — principal $${amount.toLocaleString()} returned${finalProfitAdjustment > 0 ? ` + final profit $${finalProfitAdjustment.toLocaleString()}` : ""}`,
+          investmentId: inv.id,
         });
 
         const [user] = await db.select().from(usersTable).where(eq(usersTable.id, inv.userId));

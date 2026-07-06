@@ -240,6 +240,22 @@ export const GetInvestmentResponse = zod.object({
 
 
 /**
+ * @summary Get daily profit accrual history for an investment
+ */
+export const GetInvestmentProfitHistoryParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetInvestmentProfitHistoryResponseItem = zod.object({
+  "date": zod.coerce.date(),
+  "amount": zod.number(),
+  "cumulativeProfit": zod.number(),
+  "description": zod.string().nullish()
+})
+export const GetInvestmentProfitHistoryResponse = zod.array(GetInvestmentProfitHistoryResponseItem)
+
+
+/**
  * @summary List user deposits
  */
 export const ListDepositsResponseItem = zod.object({
