@@ -9,6 +9,7 @@ import kycRouter from "./kyc";
 import dashboardRouter from "./dashboard";
 import settingsRouter from "./settings";
 import referralsRouter from "./referrals";
+import cronRouter from "./cron";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(kycRouter);
 router.use(dashboardRouter);
 router.use(settingsRouter);
 router.use(referralsRouter);
+router.use(cronRouter);
 
 export default router;

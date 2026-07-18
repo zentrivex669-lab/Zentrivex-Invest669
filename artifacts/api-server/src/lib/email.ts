@@ -5,9 +5,7 @@ const EMAIL_FROM = process.env["EMAIL_USER"] ?? "zentrivex669@gmail.com";
 const EMAIL_PASS = process.env["EMAIL_PASS"];
 
 function getAppUrl(): string {
-  const domains = process.env["REPLIT_DOMAINS"] || process.env["REPLIT_DEV_DOMAIN"];
-  const domain = domains?.split(",")[0]?.trim();
-  return domain ? `https://${domain}` : "https://zentrivex.repl.co";
+  return (process.env["APP_URL"] || "https://zentrivex-invest.vercel.app").replace(/\/$/, "");
 }
 
 const APP_URL = getAppUrl();
