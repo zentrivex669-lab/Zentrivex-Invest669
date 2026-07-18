@@ -5,11 +5,10 @@ import rateLimit from "express-rate-limit";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
-import { startProfitDistributionJob } from "./jobs/profit-distribution";
 
 const app: Express = express();
 
-// Trust the first proxy hop (Replit's reverse proxy / Nginx on VPS)
+// Trust the first proxy hop (reverse proxy / Nginx / Vercel)
 app.set("trust proxy", 1);
 
 app.use(helmet({
@@ -62,7 +61,5 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 app.use("/api", router);
-
-startProfitDistributionJob();
 
 export default app;
