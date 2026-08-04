@@ -1,12 +1,13 @@
-# [Project name]
+# Zentrivex
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A full-stack crypto investment platform with user dashboards, admin controls, investment plans, KYC, referrals, and automated daily profit distribution.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/api-server run dev` — run the API server
+- `pnpm --filter @workspace/zentrivex run dev` — run the frontend dev server
 - `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
+- `pnpm run build:vercel` — full production build (API + frontend)
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
@@ -14,23 +15,40 @@ _Replace the heading above with the project's name, and this line with one sente
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
+- API: Express 5 (compiled via esbuild for Vercel serverless)
 - DB: PostgreSQL + Drizzle ORM
+- Frontend: React 19 + Vite 7 + Tailwind CSS v4
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Build: esbuild (CJS bundle for API, Rollup/Vite for frontend)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `lib/api-spec/openapi.yaml` — source of truth for all API contracts
+- `lib/api-client-react/src/generated/` — generated React Query hooks (do not edit)
+- `lib/api-zod/src/generated/` — generated Zod schemas (do not edit)
+- `lib/db/src/schema/` — Drizzle DB schema definitions
+- `artifacts/api-server/src/` — Express API server
+- `artifacts/zentrivex/src/` — React frontend
+- `artifacts/api-server/dist/vercel-app.mjs` — compiled API for Vercel (git-ignored, rebuilt on deploy)
+- `api/server.mjs` — Vercel serverless function entry point
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- OpenAPI-first: all types flow from `lib/api-spec/openapi.yaml` → codegen → frontend hooks + server Zod validators
+- Vercel deployment uses a second esbuild target (`vercel-app.mjs`) that bundles the Express app without the cron job; the cron runs via Vercel Cron hitting `/api/cron/profit`
+- Daily profit distribution job runs via `setInterval` in the standalone server (`src/index.ts`), and via the `/api/cron/profit` endpoint on Vercel
+- JWT auth (7d expiry), bcrypt password hashing, pino structured logging
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- User registration/login with email verification
+- KYC document submission and admin review
+- Investment plans with configurable ROI and duration
+- Automated daily profit distribution (interval job + Vercel Cron)
+- Deposit and withdrawal management with admin approval
+- Referral system with configurable bonus
+- Admin dashboard: users, KYC, deposits, withdrawals, plans, settings
 
 ## User preferences
 
@@ -38,8 +56,12 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- After changing the OpenAPI spec, always run `pnpm --filter @workspace/api-spec run codegen` before touching frontend code.
+- Do NOT run `pnpm dev` at the workspace root — apps need `PORT` and `BASE_PATH` env vars wired by workflows.
+- The `@replit/*` vite plugins are used by `artifacts/mockup-sandbox` only; they must remain in `pnpm-workspace.yaml` catalog but should NOT be added to `artifacts/zentrivex/package.json`.
+- Vercel `outputDirectory` is `artifacts/zentrivex/dist/public` — the `build:vps` script uses `vite.config.vps.ts` which outputs there.
 
 ## Pointers
 
+- See `DEPLOYMENT.md` for full Vercel deployment instructions and required environment variables
 - See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
