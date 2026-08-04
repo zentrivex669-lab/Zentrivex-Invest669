@@ -2,46 +2,43 @@
 
 ## Overview
 
-Zentrivex is a full-stack investment platform with:
-- **Frontend**: React + Vite (served as static files)
-- **Backend**: Express API (deployed as a Vercel serverless function)
-- **Database**: PostgreSQL (external provider required)
+Zentrivex is a full-stack crypto investment platform. The production build consists of:
+- **Frontend** — React + Vite SPA built to `artifacts/zentrivex/dist/public/`
+- **API** — Express app compiled to `artifacts/api-server/dist/vercel-app.mjs`, served as a Vercel Serverless Function via `api/server.mjs`
+- **Cron** — Vercel Cron triggers `/api/cron/profit` hourly to distribute daily investment profits
 
 ---
 
-## Prerequisites
+## Required Environment Variables
 
-- A **PostgreSQL** database (recommended: [Neon](https://neon.tech) — free tier available)
-- A **GitHub** account (to connect your repo to Vercel)
-- A [**Vercel**](https://vercel.com) account (free tier works)
+Set all of these in your Vercel project settings under **Settings → Environment Variables**:
 
----
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | ✅ | PostgreSQL connection string (e.g. Neon, Supabase, Railway) |
+| `JWT_SECRET` | ✅ | Secret for signing JWT tokens — use a long random string |
+| `SESSION_SECRET` | ✅ | Express session secret — use a long random string |
+| `APP_URL` | ✅ | Your production URL, e.g. `https://zentrivex.vercel.app` |
+| `CRON_SECRET` | ✅ | Secret to authenticate the `/api/cron/profit` endpoint |
+| `EMAIL_USER` | ⚠️ | Gmail address for sending emails (e.g. `you@gmail.com`) |
+| `EMAIL_PASS` | ⚠️ | Gmail App Password (not your account password) |
+| `NODE_ENV` | — | Set automatically by Vercel to `production` |
 
-## Step 1 — Set Up Your Database
-
-1. Create a free PostgreSQL database on [Neon](https://neon.tech) (or Supabase/Railway)
-2. Copy the connection string — it looks like:
-   ```
-   postgresql://user:password@host.neon.tech/zentrivex_db?sslmode=require
-   ```
-3. Run the database schema (first deploy only):
-   ```bash
-   DATABASE_URL="your_connection_string" pnpm --filter @workspace/db run push-force
-   ```
+> **Tip:** Generate `JWT_SECRET` and `SESSION_SECRET` with `openssl rand -base64 48`.
 
 ---
 
-## Step 2 — Deploy on Vercel
+## Deploy to Vercel
 
-### Option A — One-click from GitHub
+### One-click (GitHub)
 
-1. Push this repository to GitHub
-2. Go to [vercel.com/new](https://vercel.com/new) and import your GitHub repo
-3. Vercel will auto-detect `vercel.json` — no framework override needed
-4. Add the required environment variables (see below)
+1. Push this repo to GitHub
+2. Go to [vercel.com/new](https://vercel.com/new) → Import your repo
+3. Vercel auto-detects `vercel.json` — no framework preset needed
+4. Add all environment variables listed above
 5. Click **Deploy**
 
-### Option B — Vercel CLI
+### Vercel CLI
 
 ```bash
 npm i -g vercel
@@ -50,55 +47,43 @@ vercel --prod
 
 ---
 
-## Required Environment Variables
+## Database Setup
 
-Set these in **Vercel → Project → Settings → Environment Variables**:
+Zentrivex uses PostgreSQL with Drizzle ORM. Before your first deploy:
 
-| Variable | Required | Description |
-|---|---|---|
-| `DATABASE_URL` | ✅ | PostgreSQL connection string |
-| `JWT_SECRET` | ✅ | Random secret for JWT tokens (min 32 chars) |
-| `APP_URL` | ✅ | Your deployed app URL, e.g. `https://zentrivex-invest.vercel.app` |
-| `EMAIL_USER` | Optional | Gmail address for transactional emails |
-| `EMAIL_PASS` | Optional | Gmail App Password ([get one here](https://myaccount.google.com/apppasswords)) |
-| `CRON_SECRET` | ✅ | Random secret to protect the profit cron endpoint |
-| `NODE_ENV` | ✅ | Set to `production` |
-
-To generate secure secrets:
 ```bash
-node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+# Push schema to your production database
+DATABASE_URL=your_production_url pnpm --filter @workspace/db run push
+
+# (Optional) Seed default data
+DATABASE_URL=your_production_url node deploy/seed-db.mjs
 ```
+
+Recommended Postgres providers: [Neon](https://neon.tech) (serverless, free tier), [Supabase](https://supabase.com), [Railway](https://railway.app).
 
 ---
 
-## Profit Distribution Cron Job
+## Build Details
 
-Daily profit crediting runs via `POST /api/cron/profit` protected by `CRON_SECRET`.
-
-- **Vercel Pro**: Already configured in `vercel.json` — runs every hour automatically
-- **Vercel Free / External**: Use [cron-job.org](https://cron-job.org) (free) to call:
-  ```
-  POST https://your-app.vercel.app/api/cron/profit
-  Authorization: Bearer YOUR_CRON_SECRET
-  ```
-  Schedule: `0 * * * *` (every hour)
+| Step | Command |
+|---|---|
+| Install | `pnpm install --frozen-lockfile` |
+| Build API | `pnpm --filter @workspace/api-server run build` |
+| Build frontend | `BASE_PATH=/ pnpm --filter @workspace/zentrivex run build:vps` |
+| Output dir | `artifacts/zentrivex/dist/public` |
+| API function | `api/server.mjs` → `artifacts/api-server/dist/vercel-app.mjs` |
 
 ---
 
-## Post-Deployment
+## Cron Configuration
 
-### Seed Initial Data (investment plans)
+Vercel Cron is configured in `vercel.json` to call `/api/cron/profit` every hour:
 
-```bash
-DATABASE_URL="your_prod_connection_string" node deploy/seed-db.mjs
+```json
+"crons": [{ "path": "/api/cron/profit", "schedule": "0 * * * *" }]
 ```
 
-### Create Admin Account
-
-Register normally via the app, then run:
-```sql
-UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
-```
+The endpoint requires an `Authorization: Bearer <CRON_SECRET>` header. Vercel automatically sets this via the `CRON_SECRET` environment variable.
 
 ---
 
@@ -108,21 +93,12 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 # Install dependencies
 pnpm install
 
-# Set environment variables
-cp .env.example .env
-# Edit .env with your values
+# Start API server (port from workflow)
+pnpm --filter @workspace/api-server run dev
 
-# Start dev servers (in separate terminals)
-PORT=8080 pnpm --filter @workspace/api-server run dev
-PORT=3000 BASE_PATH=/ pnpm --filter @workspace/zentrivex run dev
+# Start frontend dev server (port from workflow)
+pnpm --filter @workspace/zentrivex run dev
+
+# Full production build test
+pnpm run build:vercel
 ```
-
----
-
-## Vercel Build Info
-
-The `vercel.json` at the project root configures:
-- **Build**: Compiles the Express API + Vite frontend
-- **Output**: Frontend static files from `artifacts/zentrivex/dist/public`
-- **API**: `api/server.mjs` — wraps the pre-compiled Express bundle
-- **Rewrites**: `/api/*` → serverless function, everything else → `index.html`
