@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm --filter @workspace/api-server run build && BASE_PATH=/ pnpm --filter @workspace/zentrivex run build:vps",
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/zentrivex run build:vps",
   "outputDirectory": "artifacts/zentrivex/dist/public",
+  "buildEnv": {
+    "BASE_PATH": "/"
+  },
   "functions": {
     "api/server.mjs": {
       "memory": 1024,
@@ -16,7 +19,7 @@
   "crons": [
     {
       "path": "/api/cron/profit",
-      "schedule": "0 * * * *"
+      "schedule": "0 0 * * *"
     }
   ],
   "headers": [
