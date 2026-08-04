@@ -17,7 +17,12 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    sourcemap: false,
     rollupOptions: {
+      onwarn(warning, warn) {
+        if (warning.code === "SOURCEMAP_ERROR") return;
+        warn(warning);
+      },
       output: {
         manualChunks: {
           vendor: ["react", "react-dom"],
