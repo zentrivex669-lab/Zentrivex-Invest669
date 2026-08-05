@@ -2,11 +2,8 @@
   "version": 2,
   "framework": null,
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/zentrivex run build:vps",
+  "buildCommand": "pnpm --filter @workspace/api-server run build && BASE_PATH=/ pnpm --filter @workspace/zentrivex run build:vps",
   "outputDirectory": "dist",
-  "buildEnv": {
-    "BASE_PATH": "/"
-  },
   "functions": {
     "api/server.mjs": {
       "memory": 1024,
