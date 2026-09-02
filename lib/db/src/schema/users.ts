@@ -1,4 +1,4 @@
-import { pgTable, serial, text, numeric, boolean, timestamp, pgEnum, integer, type AnyPgColumn } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, numeric, boolean, timestamp, pgEnum, integer, unique, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -16,11 +16,11 @@ export const usersTable = pgTable("users", {
   balance: numeric("balance", { precision: 18, scale: 8 }).notNull().default("0"),
   kycStatus: kycStatusEnum("kyc_status").notNull().default("none"),
   isActive: boolean("is_active").notNull().default(true),
-  referralCode: text("referral_code").unique(),
+  referralCode: text("referral_code"),
   referredBy: integer("referred_by").references((): AnyPgColumn => usersTable.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [unique("users_referral_code_key").on(table.referralCode)]);
 
 export const insertUserSchema = createInsertSchema(usersTable).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertUser = z.infer<typeof insertUserSchema>;

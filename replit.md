@@ -7,9 +7,9 @@ A full-stack crypto investment platform with user dashboards, admin controls, in
 - `pnpm --filter @workspace/api-server run dev` — run the API server
 - `pnpm --filter @workspace/zentrivex run dev` — run the frontend dev server
 - `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build:vercel` — full production build (API + frontend)
+- `pnpm run build:vercel` — production build with database schema sync, idempotent seed, API, and frontend (requires `DATABASE_URL`)
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
+- `pnpm --filter @workspace/db run push` — push DB schema changes
 - Required env: `DATABASE_URL` — Postgres connection string
 
 ## Stack

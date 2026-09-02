@@ -34,9 +34,11 @@ Set all of these in your Vercel project settings under **Settings → Environmen
 
 1. Push this repo to GitHub
 2. Go to [vercel.com/new](https://vercel.com/new) → Import your repo
-3. Set the Vercel **Root Directory** to `./` (the repository root), then Vercel will use `vercel.json` — choose **Other** as the Framework Preset if asked
-4. Add all environment variables listed above
-5. Click **Deploy**
+3. Set the Vercel **Root Directory** to `./` (the repository root), then Vercel will use `vercel.json`
+4. Choose **Other** as the Framework Preset if Vercel asks
+5. Set the Output Directory to `.vercel-output` if Vercel displays an output-directory field
+6. Add all environment variables listed above
+7. Click **Deploy**
 
 ### Vercel CLI
 
@@ -49,13 +51,21 @@ vercel --prod
 
 ## Database Setup
 
+Database setup is automated by the Vercel build. When `DATABASE_URL` is present, every deployment:
+
+1. Pushes the Drizzle schema with `pnpm --filter @workspace/db run push`
+2. Runs the idempotent `deploy/seed-db.mjs` seeder
+3. Builds the API and frontend
+
+The seeder creates the initial admin account, investment plans, and payment settings only when they do not already exist. It does not overwrite existing records.
+
 Zentrivex uses PostgreSQL with Drizzle ORM. Before your first deploy:
 
 ```bash
-# Push schema to your production database
+# Optional: initialize the database manually outside Vercel
 DATABASE_URL=your_production_url pnpm --filter @workspace/db run push
 
-# (Optional) Seed default data
+# Optional: seed default data manually outside Vercel
 DATABASE_URL=your_production_url node deploy/seed-db.mjs
 ```
 
@@ -68,6 +78,8 @@ Recommended Postgres providers: [Neon](https://neon.tech) (serverless, free tier
 | Step | Command |
 |---|---|
 | Install | `pnpm install` |
+| Schema setup | `pnpm --filter @workspace/db run push` |
+| Database seed | `node deploy/seed-db.mjs` |
 | Build API | `pnpm --filter @workspace/api-server run build` |
 | Build frontend | `BASE_PATH=/ pnpm --filter @workspace/zentrivex run build:vps` |
 | Output dir | `.vercel-output` |
@@ -99,6 +111,6 @@ pnpm --filter @workspace/api-server run dev
 # Start frontend dev server (port from workflow)
 pnpm --filter @workspace/zentrivex run dev
 
-# Full production build test
+# Full production build test (requires DATABASE_URL)
 pnpm run build:vercel
 ```
