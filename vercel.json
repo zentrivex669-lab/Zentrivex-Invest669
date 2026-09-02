@@ -3,7 +3,7 @@
   "framework": null,
   "installCommand": "pnpm install",
   "buildCommand": "pnpm --filter @workspace/api-server run build && BASE_PATH=/ pnpm --filter @workspace/zentrivex run build:vps",
-  "outputDirectory": "dist",
+  "outputDirectory": ".vercel-output",
   "functions": {
     "api/server.mjs": {
       "memory": 1024,
