@@ -59,7 +59,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 - After changing the OpenAPI spec, always run `pnpm --filter @workspace/api-spec run codegen` before touching frontend code.
 - Do NOT run `pnpm dev` at the workspace root — apps need `PORT` and `BASE_PATH` env vars wired by workflows.
 - The `@replit/*` vite plugins are used by `artifacts/mockup-sandbox` only; they must remain in `pnpm-workspace.yaml` catalog but should NOT be added to `artifacts/zentrivex/package.json`.
-- Vercel `outputDirectory` is `artifacts/zentrivex/dist/public` — the `build:vps` script uses `vite.config.vps.ts` which outputs there.
+- Vercel `outputDirectory` is `.vercel-output` — the `build:vps` script uses `vite.config.vps.ts` which outputs there. Vercel Root Directory must remain `./` (repository root).
 
 ## Pointers
 
