@@ -3,9 +3,9 @@
 ## Overview
 
 Zentrivex is a full-stack crypto investment platform. The production build consists of:
-- **Frontend** — React + Vite SPA built to `artifacts/zentrivex/dist/public/`
+- **Frontend** — React + Vite SPA built to `.vercel-output/`
 - **API** — Express app compiled to `artifacts/api-server/dist/vercel-app.mjs`, served as a Vercel Serverless Function via `api/server.mjs`
-- **Cron** — Vercel Cron triggers `/api/cron/profit` hourly to distribute daily investment profits
+- **Cron** — Vercel Cron triggers `/api/cron/profit` daily to distribute daily investment profits
 
 ---
 
@@ -34,7 +34,7 @@ Set all of these in your Vercel project settings under **Settings → Environmen
 
 1. Push this repo to GitHub
 2. Go to [vercel.com/new](https://vercel.com/new) → Import your repo
-3. Vercel auto-detects `vercel.json` — no framework preset needed
+3. Set the Vercel **Root Directory** to `./` (the repository root), then Vercel will use `vercel.json` — choose **Other** as the Framework Preset if asked
 4. Add all environment variables listed above
 5. Click **Deploy**
 
@@ -67,20 +67,20 @@ Recommended Postgres providers: [Neon](https://neon.tech) (serverless, free tier
 
 | Step | Command |
 |---|---|
-| Install | `pnpm install --frozen-lockfile` |
+| Install | `pnpm install` |
 | Build API | `pnpm --filter @workspace/api-server run build` |
 | Build frontend | `BASE_PATH=/ pnpm --filter @workspace/zentrivex run build:vps` |
-| Output dir | `artifacts/zentrivex/dist/public` |
+| Output dir | `.vercel-output` |
 | API function | `api/server.mjs` → `artifacts/api-server/dist/vercel-app.mjs` |
 
 ---
 
 ## Cron Configuration
 
-Vercel Cron is configured in `vercel.json` to call `/api/cron/profit` every hour:
+Vercel Cron is configured in `vercel.json` to call `/api/cron/profit` daily at midnight UTC:
 
 ```json
-"crons": [{ "path": "/api/cron/profit", "schedule": "0 * * * *" }]
+"crons": [{ "path": "/api/cron/profit", "schedule": "0 0 * * *" }]
 ```
 
 The endpoint requires an `Authorization: Bearer <CRON_SECRET>` header. Vercel automatically sets this via the `CRON_SECRET` environment variable.

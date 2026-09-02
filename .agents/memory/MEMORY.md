@@ -1,0 +1,1 @@
+- [Vercel root directory](vercel-root-directory.md) — monorepo deployments must use the repository root or Vercel can serve the API bundle as the homepage.
