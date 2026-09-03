@@ -17,6 +17,7 @@ Set all of these in your Vercel project settings under **Settings → Environmen
 |---|---|---|
 | `DATABASE_URL` | ✅ | PostgreSQL connection string (e.g. Neon, Supabase, Railway) |
 | `JWT_SECRET` | ✅ | Secret for signing JWT tokens — use a long random string |
+| `ADMIN_SEED_PASSWORD` | ✅ first deploy | Password used only to create the initial admin account; never commit it |
 | `SESSION_SECRET` | ✅ | Express session secret — use a long random string |
 | `APP_URL` | ✅ | Your production URL, e.g. `https://zentrivex.vercel.app` |
 | `CRON_SECRET` | ✅ | Secret to authenticate the `/api/cron/profit` endpoint |
@@ -57,7 +58,7 @@ Database setup is automated by the Vercel build. When `DATABASE_URL` is present,
 2. Runs the idempotent `deploy/seed-db.mjs` seeder
 3. Builds the API and frontend
 
-The seeder creates the initial admin account, investment plans, and payment settings only when they do not already exist. It does not overwrite existing records.
+The seeder creates the initial admin account, investment plans, and payment settings only when they do not already exist. It does not overwrite existing records. Set `ADMIN_SEED_PASSWORD` for the first deployment; the value is never printed or stored in the repository.
 
 Zentrivex uses PostgreSQL with Drizzle ORM. Before your first deploy:
 

@@ -1,7 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "zentrivex_secret_key_2024";
+const JWT_SECRET = process.env.JWT_SECRET ?? process.env.SESSION_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET or SESSION_SECRET must be set");
+}
 
 export interface AuthRequest extends Request {
   userId?: number;

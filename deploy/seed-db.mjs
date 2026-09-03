@@ -11,7 +11,7 @@
  *   source .env && node deploy/seed-db.mjs
  *
  * What it does:
- *   1. Creates the admin user  (support@zentrivex.com / Zentrivex@6692026)
+ *   1. Creates the admin user using ADMIN_SEED_PASSWORD
  *   2. Creates 4 default investment plans
  *   3. Inserts default payment settings
  */
@@ -20,6 +20,8 @@ import pg from "pg";
 import bcryptjs from "bcryptjs";
 
 const { Pool } = pg;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "support@zentrivex.com";
+const ADMIN_SEED_PASSWORD = process.env.ADMIN_SEED_PASSWORD;
 
 if (!process.env.DATABASE_URL) {
   console.error("❌  DATABASE_URL is not set.");
@@ -39,22 +41,25 @@ async function main() {
   // ── 1. Admin user ──────────────────────────────────────────────────────────
   const existingAdmin = await query(
     "SELECT id FROM users WHERE email = $1",
-    ["support@zentrivex.com"]
+    [ADMIN_EMAIL]
   );
 
   if (existingAdmin.length > 0) {
     console.log("✓  Admin user already exists — skipped");
   } else {
-    const hash = await bcryptjs.hash("Zentrivex@6692026", 10);
+    if (!ADMIN_SEED_PASSWORD) {
+      throw new Error("ADMIN_SEED_PASSWORD must be set before creating the initial admin user");
+    }
+    const hash = await bcryptjs.hash(ADMIN_SEED_PASSWORD, 10);
     await query(
       `INSERT INTO users
          (email, password, first_name, last_name, role, balance, kyc_status, is_active)
        VALUES ($1, $2, 'Admin', 'Zentrivex', 'admin', '0', 'approved', true)`,
-      ["support@zentrivex.com", hash]
+      [ADMIN_EMAIL, hash]
     );
     console.log("✓  Admin user created");
-    console.log("    Email   : support@zentrivex.com");
-    console.log("    Password: Zentrivex@6692026");
+    console.log(`    Email   : ${ADMIN_EMAIL}`);
+    console.log("    Password: supplied through ADMIN_SEED_PASSWORD");
     console.log("    ⚠️   Change the admin password after first login!\n");
   }
 
