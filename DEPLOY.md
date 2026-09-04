@@ -125,7 +125,7 @@ node deploy/seed-db.mjs
 | Item | Value |
 |---|---|
 | Admin email | `support@zentrivex.com` |
-| Admin password | `Zentrivex@6692026` |
+| Admin password | Set through `ADMIN_SEED_PASSWORD` in `.env` |
 | Starter Fund | 12.5% ROI · 30 days · $500–$4,999 |
 | Growth Fund | 22.0% ROI · 60 days · $5,000–$24,999 |
 | Premium Fund | 32.5% ROI · 90 days · $25,000–$99,999 |
@@ -398,7 +398,7 @@ https://yourdomain.com/admin-portal
 | Field | Value |
 |-------|-------|
 | Email | `support@zentrivex.com` |
-| Password | `Zentrivex@6692026` |
+| Password | The value configured in `ADMIN_SEED_PASSWORD` |
 
 > ⚠️ **Change this password immediately** after your first login.
 
