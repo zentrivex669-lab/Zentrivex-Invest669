@@ -59,6 +59,7 @@ function Router() {
       <Route path="/admin/settings/homepage" component={AdminSettingsHomepage} />
       <Route path="/admin/settings/referral" component={AdminSettingsReferral} />
       <Route path="/admin-portal" component={AdminPortal} />
+      <Route path="/admin/login" component={AdminPortal} />
       <Route component={NotFound} />
     </Switch>
   );
