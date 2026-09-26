@@ -21,8 +21,8 @@ Set all of these in your Vercel project settings under **Settings → Environmen
 | `SESSION_SECRET` | ✅ | Express session secret — use a long random string |
 | `APP_URL` | ✅ | Your production URL, e.g. `https://zentrivex.vercel.app` |
 | `CRON_SECRET` | ✅ | Secret to authenticate the `/api/cron/profit` endpoint |
-| `EMAIL_USER` | ⚠️ | Gmail address for sending emails (e.g. `you@gmail.com`) |
-| `EMAIL_PASS` | ⚠️ | Gmail App Password (not your account password) |
+| `EMAIL_USER` | ✅ for email notifications | Gmail address for sending approval and account emails |
+| `EMAIL_PASS` | ✅ for email notifications | Gmail App Password (not your account password) |
 | `NODE_ENV` | — | Set automatically by Vercel to `production` |
 
 > **Tip:** Generate `JWT_SECRET` and `SESSION_SECRET` with `openssl rand -base64 48`.

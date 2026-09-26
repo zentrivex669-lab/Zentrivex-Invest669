@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import { logger } from "./logger";
 
-const EMAIL_FROM = process.env["EMAIL_USER"] ?? "zentrivex669@gmail.com";
+const EMAIL_FROM = process.env["EMAIL_USER"];
 const EMAIL_PASS = process.env["EMAIL_PASS"];
 
 function getAppUrl(): string {
@@ -11,8 +11,8 @@ function getAppUrl(): string {
 const APP_URL = getAppUrl();
 
 function createTransport() {
-  if (!EMAIL_PASS) {
-    logger.warn("EMAIL_PASS not set — email sending disabled");
+  if (!EMAIL_FROM || !EMAIL_PASS) {
+    logger.warn("EMAIL_USER or EMAIL_PASS not set — email sending disabled");
     return null;
   }
   return nodemailer.createTransport({
@@ -32,15 +32,33 @@ function baseTemplate(content: string, previewText = "") {
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Zentrivex</title>
+<style>
+  html, body { width:100% !important; margin:0 !important; padding:0 !important; }
+  table { border-collapse:collapse; }
+  @media only screen and (max-width:600px) {
+    .email-outer { padding:16px 8px !important; }
+    .email-shell { width:100% !important; max-width:100% !important; }
+    .email-header, .email-body, .email-footer { padding-left:18px !important; padding-right:18px !important; }
+    .email-header { padding-top:24px !important; padding-bottom:24px !important; }
+    .email-body { padding-top:28px !important; padding-bottom:28px !important; }
+    .email-footer { padding-top:18px !important; padding-bottom:18px !important; }
+    .email-heading { font-size:22px !important; line-height:1.25 !important; }
+    .email-subheading { font-size:13px !important; margin-bottom:20px !important; }
+    .email-copy { font-size:14px !important; }
+    .email-info td { padding:9px 10px !important; font-size:12px !important; word-break:break-word !important; }
+    .email-alert td { padding:12px !important; }
+    .email-button { display:block !important; width:100% !important; box-sizing:border-box !important; padding:13px 16px !important; }
+  }
+</style>
 </head>
 <body style="margin:0;padding:0;background:#040f0e;font-family:Arial,Helvetica,sans-serif;">
 ${previewText ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${previewText}</div>` : ""}
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#040f0e;min-height:100vh;">
-  <tr><td align="center" style="padding:40px 16px;">
-    <table width="600" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px;width:100%;">
+  <tr><td class="email-outer" align="center" style="padding:40px 16px;">
+    <table class="email-shell" width="600" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px;width:100%;">
 
       <!-- Header -->
-      <tr><td style="background:linear-gradient(135deg,#051a17 0%,#061f1b 100%);border:1px solid #1a3530;border-radius:16px 16px 0 0;padding:32px 40px;text-align:center;">
+      <tr><td class="email-header" style="background:linear-gradient(135deg,#051a17 0%,#061f1b 100%);border:1px solid #1a3530;border-radius:16px 16px 0 0;padding:32px 40px;text-align:center;">
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr><td align="center">
             <table cellpadding="0" cellspacing="0">
@@ -58,12 +76,12 @@ ${previewText ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0
       </td></tr>
 
       <!-- Body -->
-      <tr><td style="background:#061410;border-left:1px solid #1a3530;border-right:1px solid #1a3530;padding:40px;">
+      <tr><td class="email-body" style="background:#061410;border-left:1px solid #1a3530;border-right:1px solid #1a3530;padding:40px;overflow-wrap:anywhere;">
         ${content}
       </td></tr>
 
       <!-- Footer -->
-      <tr><td style="background:#040f0e;border:1px solid #1a3530;border-top:none;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
+      <tr><td class="email-footer" style="background:#040f0e;border:1px solid #1a3530;border-top:none;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
         <p style="color:#4a6b60;font-size:12px;margin:0 0 8px;">© 2026 Zentrivex Ltd. All rights reserved.</p>
         <p style="color:#4a6b60;font-size:11px;margin:0;">This email was sent from a no-reply address. Do not reply.</p>
         <p style="color:#4a6b60;font-size:11px;margin:8px 0 0;">Zentrivex · Real Estate &amp; Stock Market Investments</p>
@@ -77,15 +95,15 @@ ${previewText ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0
 }
 
 function heading(text: string) {
-  return `<h1 style="color:#ffffff;font-size:24px;font-weight:900;margin:0 0 8px;letter-spacing:-0.5px;">${text}</h1>`;
+  return `<h1 class="email-heading" style="color:#ffffff;font-size:24px;font-weight:900;margin:0 0 8px;letter-spacing:-0.5px;">${text}</h1>`;
 }
 
 function subheading(text: string) {
-  return `<p style="color:#7db8a8;font-size:14px;margin:0 0 28px;">${text}</p>`;
+  return `<p class="email-subheading" style="color:#7db8a8;font-size:14px;margin:0 0 28px;">${text}</p>`;
 }
 
 function para(text: string) {
-  return `<p style="color:#a0c4b8;font-size:15px;line-height:1.6;margin:0 0 16px;">${text}</p>`;
+  return `<p class="email-copy" style="color:#a0c4b8;font-size:15px;line-height:1.6;margin:0 0 16px;overflow-wrap:anywhere;">${text}</p>`;
 }
 
 function divider() {
@@ -100,7 +118,7 @@ function infoRow(label: string, value: string, highlight = false) {
 }
 
 function infoTable(rows: string) {
-  return `<table width="100%" cellpadding="0" cellspacing="0" style="background:#040f0e;border:1px solid #1a3530;border-radius:10px;overflow:hidden;margin:20px 0;">
+  return `<table class="email-info" width="100%" cellpadding="0" cellspacing="0" style="background:#040f0e;border:1px solid #1a3530;border-radius:10px;overflow:hidden;margin:20px 0;table-layout:fixed;">
     ${rows}
   </table>`;
 }
@@ -112,7 +130,7 @@ function alertBox(type: "success" | "warning" | "danger", text: string) {
     danger: { bg: "#2a0808", border: "#7f1d1d", icon: "✕", iconBg: "#dc2626", text: "#fca5a5" },
   };
   const c = colors[type];
-  return `<table width="100%" cellpadding="0" cellspacing="0" style="background:${c.bg};border:1px solid ${c.border};border-radius:10px;margin:20px 0;">
+  return `<table class="email-alert" width="100%" cellpadding="0" cellspacing="0" style="background:${c.bg};border:1px solid ${c.border};border-radius:10px;margin:20px 0;">
     <tr>
       <td style="padding:16px;vertical-align:top;width:40px;">
         <div style="background:${c.iconBg};color:#000;font-weight:900;font-size:14px;width:24px;height:24px;border-radius:50%;text-align:center;line-height:24px;">${c.icon}</div>
@@ -124,7 +142,7 @@ function alertBox(type: "success" | "warning" | "danger", text: string) {
 
 function button(text: string, url: string) {
   return `<div style="text-align:center;margin:28px 0 8px;">
-    <a href="${url}" style="display:inline-block;background:#d97706;color:#000000;font-weight:700;font-size:15px;padding:14px 36px;border-radius:8px;text-decoration:none;letter-spacing:0.3px;">${text}</a>
+    <a class="email-button" href="${url}" style="display:inline-block;background:#d97706;color:#000000;font-weight:700;font-size:15px;padding:14px 36px;border-radius:8px;text-decoration:none;letter-spacing:0.3px;">${text}</a>
   </div>`;
 }
 
