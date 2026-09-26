@@ -52,11 +52,11 @@ router.post("/withdrawals", authMiddleware, async (req: AuthRequest, res) => {
       status: "pending",
       description: `Withdrawal of $${amount} to ${walletAddress.slice(0, 10)}... pending approval`,
     });
-    sendEmail(
+      await sendEmail(
       user.email,
       "Withdrawal Request Received — Zentrivex",
       emailWithdrawalSubmitted(user.firstName, amount, walletAddress, new Date())
-    ).catch(() => {});
+      );
     return res.status(201).json(formatWithdrawal(wd));
   } catch {
     return res.status(500).json({ error: "Failed to create withdrawal" });
@@ -90,11 +90,11 @@ router.patch("/admin/withdrawals/:id/approve", authMiddleware, adminMiddleware, 
     });
     const [user] = await db.select().from(usersTable).where(eq(usersTable.id, wd.userId));
     if (user) {
-      sendEmail(
+      await sendEmail(
         user.email,
         "Withdrawal Approved — Funds Sent ✓",
         emailWithdrawalApproved(user.firstName, Number(wd.amount), wd.walletAddress)
-      ).catch(() => {});
+      );
     }
     return res.json(formatWithdrawal(updated));
   } catch {
@@ -114,11 +114,11 @@ router.patch("/admin/withdrawals/:id/reject", authMiddleware, adminMiddleware, a
     await db.update(usersTable).set({ balance: String(Number(user.balance) + Number(wd.amount)), updatedAt: new Date() }).where(eq(usersTable.id, wd.userId));
     const [updated] = await db.update(withdrawalsTable).set({ status: "rejected", rejectionReason: parsed.data.reason, updatedAt: new Date() }).where(eq(withdrawalsTable.id, id)).returning();
     if (user) {
-      sendEmail(
+      await sendEmail(
         user.email,
         "Withdrawal Rejected — Funds Returned",
         emailWithdrawalRejected(user.firstName, Number(wd.amount), parsed.data.reason)
-      ).catch(() => {});
+      );
     }
     return res.json(formatWithdrawal(updated));
   } catch {
