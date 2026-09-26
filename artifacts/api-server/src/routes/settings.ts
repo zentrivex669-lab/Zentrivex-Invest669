@@ -197,7 +197,7 @@ const FullUserUpdateSchema = z.object({
 
 router.patch("/admin/users/:id/edit", authMiddleware, adminMiddleware, async (req: AuthRequest, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(String(req.params.id), 10);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid user ID" });
     const parsed = FullUserUpdateSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: "Invalid input" });

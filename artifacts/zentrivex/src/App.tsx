@@ -5,8 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import NotFound from "@/pages/not-found";
 import LandingPage from "@/pages/landing";
-import LoginPage from "@/pages/login";
-import RegisterPage from "@/pages/register";
 import DashboardPage from "@/pages/dashboard/index";
 import PlansPage from "@/pages/dashboard/plans";
 import DepositPage from "@/pages/dashboard/deposit";
@@ -39,8 +37,6 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
-      <Route path="/login" component={LoginPage} />
-      <Route path="/register" component={RegisterPage} />
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/dashboard/plans" component={PlansPage} />
       <Route path="/dashboard/deposit" component={DepositPage} />
@@ -58,7 +54,6 @@ function Router() {
       <Route path="/admin/settings/payment" component={AdminSettingsPayment} />
       <Route path="/admin/settings/homepage" component={AdminSettingsHomepage} />
       <Route path="/admin/settings/referral" component={AdminSettingsReferral} />
-      <Route path="/admin-portal" component={AdminPortal} />
       <Route path="/admin/login" component={AdminPortal} />
       <Route component={NotFound} />
     </Switch>

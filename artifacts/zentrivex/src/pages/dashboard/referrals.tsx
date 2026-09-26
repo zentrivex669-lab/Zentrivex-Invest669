@@ -118,5 +118,5 @@ function ReferralsContent() {
 }
 
 export default function ReferralsPage() {
-  return <ProtectedRoute><DashboardLayout><ReferralsContent /></DashboardLayout></ProtectedRoute>;
+  return <ProtectedRoute adminOnly><DashboardLayout><ReferralsContent /></DashboardLayout></ProtectedRoute>;
 }

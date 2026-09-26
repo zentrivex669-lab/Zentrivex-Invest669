@@ -119,5 +119,5 @@ function WithdrawContent() {
 }
 
 export default function WithdrawPage() {
-  return <ProtectedRoute><DashboardLayout><WithdrawContent /></DashboardLayout></ProtectedRoute>;
+  return <ProtectedRoute adminOnly><DashboardLayout><WithdrawContent /></DashboardLayout></ProtectedRoute>;
 }

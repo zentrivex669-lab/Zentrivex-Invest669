@@ -80,5 +80,5 @@ function TransactionsContent() {
 }
 
 export default function TransactionsPage() {
-  return <ProtectedRoute><DashboardLayout><TransactionsContent /></DashboardLayout></ProtectedRoute>;
+  return <ProtectedRoute adminOnly><DashboardLayout><TransactionsContent /></DashboardLayout></ProtectedRoute>;
 }
