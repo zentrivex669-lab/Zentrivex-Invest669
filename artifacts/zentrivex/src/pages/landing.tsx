@@ -204,7 +204,8 @@ export default function LandingPage() {
             <span className="font-bold text-xl tracking-tight">Zentrivex</span>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/admin/login"><Button variant="ghost" size="sm">Admin Login</Button></Link>
+            <Link href="/login"><Button variant="ghost" size="sm">Sign in</Button></Link>
+            <Link href="/register"><Button size="sm" className="gap-1">Get Started <ArrowRight size={14} /></Button></Link>
           </div>
         </div>
       </nav>
@@ -227,7 +228,8 @@ export default function LandingPage() {
               Zentrivex pools investor capital into premium real estate properties and professionally managed stock portfolios — delivering consistent, above-market returns since 2015.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/admin/login"><Button size="lg" className="gap-2 text-base px-8 h-12 font-semibold">Admin Login <ArrowRight size={16} /></Button></Link>
+              <Link href="/register"><Button size="lg" className="gap-2 text-base px-8 h-12 font-semibold">Start Investing <ArrowRight size={16} /></Button></Link>
+              <Link href="/login"><Button size="lg" variant="outline" className="text-base px-8 h-12">Sign In</Button></Link>
             </div>
             <div className="flex gap-8 mt-10 pt-8 border-t border-card-border">
               <div><p className="text-2xl font-black text-primary">$1.4B+</p><p className="text-xs text-muted-foreground mt-0.5">Assets Under Management</p></div>
@@ -355,7 +357,7 @@ export default function LandingPage() {
                   <div className="flex justify-between"><span>Investment period</span><span className="text-foreground font-semibold">{plan.durationDays} days</span></div>
                   <div className="flex justify-between"><span>Source</span><span className="text-foreground font-semibold">{i === 0 ? "Rental income" : i === 1 ? "RE + Stocks" : "Stocks + RE"}</span></div>
                 </div>
-                <Link href="/admin/login"><Button className="w-full mt-2" variant={i === 1 ? "default" : "outline"}>Admin Login</Button></Link>
+                <Link href="/register"><Button className="w-full mt-2" variant={i === 1 ? "default" : "outline"}>Invest Now</Button></Link>
               </div>
             ))}
             {(!plans || plans.length === 0) && (
@@ -487,7 +489,7 @@ export default function LandingPage() {
           <div className="relative p-12 text-center">
             <h2 className="text-4xl font-black tracking-tight mb-4">Start Building Real Wealth Today</h2>
             <p className="text-muted-foreground mb-8 max-w-xl mx-auto">Join 24,000+ investors earning consistent returns through our premium real estate and stock market funds.</p>
-            <Link href="/admin/login"><Button size="lg" className="gap-2 text-base px-10 h-12 font-bold">Admin Login <ArrowRight size={16} /></Button></Link>
+            <Link href="/register"><Button size="lg" className="gap-2 text-base px-10 h-12 font-bold">Open an Account <ArrowRight size={16} /></Button></Link>
           </div>
         </div>
       </section>
@@ -502,7 +504,10 @@ export default function LandingPage() {
             <span className="font-bold tracking-tight">Zentrivex</span>
             <span className="text-xs text-muted-foreground ml-2">Real Estate & Market Investments</span>
           </div>
-          <p className="text-xs text-muted-foreground">© 2026 Zentrivex Ltd. All rights reserved.</p>
+          <div className="flex items-center gap-4">
+            <Link href="/admin/login" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Admin Login</Link>
+            <p className="text-xs text-muted-foreground">© 2026 Zentrivex Ltd. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>

@@ -263,5 +263,5 @@ function DashboardContent() {
 }
 
 export default function DashboardPage() {
-  return <ProtectedRoute adminOnly><DashboardLayout><DashboardContent /></DashboardLayout></ProtectedRoute>;
+  return <ProtectedRoute><DashboardLayout><DashboardContent /></DashboardLayout></ProtectedRoute>;
 }

@@ -33,10 +33,6 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
       res.status(401).json({ error: "Invalid or expired token" });
       return;
     }
-    if (verified.role !== "admin") {
-      res.status(403).json({ error: "Admin access only" });
-      return;
-    }
     req.userId = verified.userId;
     req.userRole = verified.role;
     next();

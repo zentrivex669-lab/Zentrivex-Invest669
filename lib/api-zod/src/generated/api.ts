@@ -17,7 +17,7 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
- * @summary Register user
+ * @summary Register a user account
  */
 export const registerBodyPasswordMin = 8;
 
@@ -34,7 +34,7 @@ export const RegisterBody = zod.object({
 
 
 /**
- * @summary Login user
+ * @summary User login
  */
 export const LoginBody = zod.object({
   "email": zod.string(),
@@ -42,6 +42,32 @@ export const LoginBody = zod.object({
 })
 
 export const LoginResponse = zod.object({
+  "user": zod.object({
+  "id": zod.number(),
+  "email": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "phone": zod.string().nullish(),
+  "role": zod.enum(['user', 'admin']),
+  "balance": zod.number(),
+  "kycStatus": zod.enum(['none', 'pending', 'approved', 'rejected']),
+  "isActive": zod.boolean().optional(),
+  "referralCode": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+}),
+  "token": zod.string()
+})
+
+
+/**
+ * @summary Admin login
+ */
+export const AdminLoginBody = zod.object({
+  "email": zod.string(),
+  "password": zod.string()
+})
+
+export const AdminLoginResponse = zod.object({
   "user": zod.object({
   "id": zod.number(),
   "email": zod.string(),

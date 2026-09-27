@@ -198,5 +198,5 @@ function DepositContent() {
 }
 
 export default function DepositPage() {
-  return <ProtectedRoute adminOnly><DashboardLayout><DepositContent /></DashboardLayout></ProtectedRoute>;
+  return <ProtectedRoute><DashboardLayout><DepositContent /></DashboardLayout></ProtectedRoute>;
 }
