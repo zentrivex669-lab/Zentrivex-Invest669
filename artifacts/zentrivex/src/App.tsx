@@ -23,6 +23,8 @@ import AdminSettingsPayment from "@/pages/admin/settings-payment";
 import AdminSettingsHomepage from "@/pages/admin/settings-homepage";
 import AdminSettingsReferral from "@/pages/admin/settings-referral";
 import AdminPortal from "@/pages/admin-portal";
+import LoginPage from "@/pages/login";
+import RegisterPage from "@/pages/register";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +39,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
+      <Route path="/login" component={LoginPage} />
+      <Route path="/register" component={RegisterPage} />
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/dashboard/plans" component={PlansPage} />
       <Route path="/dashboard/deposit" component={DepositPage} />

@@ -124,5 +124,5 @@ function PlansContent() {
 }
 
 export default function PlansPage() {
-  return <ProtectedRoute adminOnly><DashboardLayout><PlansContent /></DashboardLayout></ProtectedRoute>;
+  return <ProtectedRoute><DashboardLayout><PlansContent /></DashboardLayout></ProtectedRoute>;
 }
