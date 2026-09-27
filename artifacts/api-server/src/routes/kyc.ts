@@ -74,7 +74,7 @@ router.get("/admin/kyc", authMiddleware, adminMiddleware, async (req: AuthReques
 
 router.patch("/admin/kyc/:id/approve", authMiddleware, adminMiddleware, async (req: AuthRequest, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(String(req.params.id), 10);
     const [kyc] = await db.select().from(kycTable).where(eq(kycTable.id, id));
     if (!kyc) return res.status(404).json({ error: "KYC not found" });
     const [updated] = await db.update(kycTable).set({ status: "approved", reviewedAt: new Date(), updatedAt: new Date() }).where(eq(kycTable.id, id)).returning();
@@ -95,7 +95,7 @@ router.patch("/admin/kyc/:id/approve", authMiddleware, adminMiddleware, async (r
 
 router.patch("/admin/kyc/:id/reject", authMiddleware, adminMiddleware, async (req: AuthRequest, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(String(req.params.id), 10);
     const parsed = RejectKycBody.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: "Rejection reason required" });
     const [kyc] = await db.select().from(kycTable).where(eq(kycTable.id, id));

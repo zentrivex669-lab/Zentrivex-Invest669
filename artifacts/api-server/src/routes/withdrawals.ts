@@ -76,7 +76,7 @@ router.get("/admin/withdrawals", authMiddleware, adminMiddleware, async (req: Au
 
 router.patch("/admin/withdrawals/:id/approve", authMiddleware, adminMiddleware, async (req: AuthRequest, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(String(req.params.id), 10);
     const [wd] = await db.select().from(withdrawalsTable).where(eq(withdrawalsTable.id, id));
     if (!wd) return res.status(404).json({ error: "Withdrawal not found" });
     if (wd.status !== "pending") return res.status(400).json({ error: "Withdrawal is not pending" });
@@ -104,7 +104,7 @@ router.patch("/admin/withdrawals/:id/approve", authMiddleware, adminMiddleware, 
 
 router.patch("/admin/withdrawals/:id/reject", authMiddleware, adminMiddleware, async (req: AuthRequest, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(String(req.params.id), 10);
     const parsed = RejectWithdrawalBody.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: "Rejection reason required" });
     const [wd] = await db.select().from(withdrawalsTable).where(eq(withdrawalsTable.id, id));

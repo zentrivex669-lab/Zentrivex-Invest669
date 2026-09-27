@@ -271,5 +271,5 @@ function KycContent() {
 }
 
 export default function KycPage() {
-  return <ProtectedRoute><DashboardLayout><KycContent /></DashboardLayout></ProtectedRoute>;
+  return <ProtectedRoute adminOnly><DashboardLayout><KycContent /></DashboardLayout></ProtectedRoute>;
 }

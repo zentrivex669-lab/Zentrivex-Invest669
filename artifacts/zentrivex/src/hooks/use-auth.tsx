@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleLogout = () => {
     localStorage.removeItem("zentrivex_token");
     setToken(null);
-    setLocation("/login");
+    setLocation("/admin/login");
   };
 
   return (

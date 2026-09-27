@@ -43,7 +43,7 @@ router.get("/referrals", authMiddleware, async (req: AuthRequest, res) => {
 
     const protocol = req.headers["x-forwarded-proto"] || req.protocol;
     const host = req.headers["x-forwarded-host"] || req.get("host");
-    const referralLink = `${protocol}://${host}/register?ref=${user.referralCode}`;
+    const referralLink = `${protocol}://${host}/admin/login`;
 
     return res.json({
       referralCode: user.referralCode,

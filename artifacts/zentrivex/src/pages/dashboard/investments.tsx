@@ -112,5 +112,5 @@ function InvestmentsContent() {
 }
 
 export default function InvestmentsPage() {
-  return <ProtectedRoute><DashboardLayout><InvestmentsContent /></DashboardLayout></ProtectedRoute>;
+  return <ProtectedRoute adminOnly><DashboardLayout><InvestmentsContent /></DashboardLayout></ProtectedRoute>;
 }
