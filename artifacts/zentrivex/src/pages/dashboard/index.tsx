@@ -2,7 +2,14 @@ import { Link } from "wouter";
 import { useState, useRef } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { useGetDashboard, useListTransactions, useListInvestments } from "@workspace/api-client-react";
+import {
+  useGetDashboard,
+  useListTransactions,
+  useListInvestments,
+  getGetDashboardQueryKey,
+  getListTransactionsQueryKey,
+  getListInvestmentsQueryKey,
+} from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -116,9 +123,9 @@ function TradingViewChart() {
 
 function DashboardContent() {
   const { user } = useAuth();
-  const { data: dashboard, isLoading } = useGetDashboard();
-  const { data: txs } = useListTransactions();
-  const { data: investments } = useListInvestments();
+  const { data: dashboard, isLoading } = useGetDashboard({ query: { queryKey: getGetDashboardQueryKey(), refetchInterval: 60_000 } });
+  const { data: txs } = useListTransactions({ query: { queryKey: getListTransactionsQueryKey(), refetchInterval: 60_000 } });
+  const { data: investments } = useListInvestments({ query: { queryKey: getListInvestmentsQueryKey(), refetchInterval: 60_000 } });
 
   return (
     <div className="space-y-6">
@@ -213,7 +220,7 @@ function DashboardContent() {
                         {tx.type === "deposit" ? <ArrowDownCircle size={14} className="text-green-400" /> : tx.type === "withdrawal" ? <ArrowUpCircle size={14} className="text-red-400" /> : <TrendingUp size={14} className="text-primary" />}
                       </div>
                       <div>
-                        <p className="text-xs font-semibold capitalize">{tx.type === "investment" ? "Investment" : tx.type}</p>
+                        <p className="text-xs font-semibold capitalize">{tx.type === "principal_return" ? "Capital returned" : tx.type === "investment" ? "Investment" : tx.type}</p>
                         <p className="text-xs text-muted-foreground">{new Date(tx.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>

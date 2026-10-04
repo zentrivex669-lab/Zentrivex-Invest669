@@ -78,7 +78,7 @@ function AdminPlansContent() {
               </div>
               <Badge variant="outline" className={plan.isActive ? "border-green-500/30 text-green-400" : "border-red-500/30 text-red-400"}>{plan.isActive ? "Active" : "Inactive"}</Badge>
             </div>
-            <div className="text-4xl font-black text-primary">{plan.roiPercent}% <span className="text-base text-muted-foreground font-normal">ROI</span></div>
+            <div className="text-4xl font-black text-primary">{plan.roiPercent}% <span className="text-base text-muted-foreground font-normal">total return</span></div>
             <div className="space-y-1 text-sm text-muted-foreground">
               <div className="flex justify-between"><span>Duration</span><span className="text-foreground font-semibold">{plan.durationDays} days</span></div>
               <div className="flex justify-between"><span>Min</span><span className="text-foreground font-semibold">${plan.minAmount.toLocaleString()}</span></div>
@@ -104,7 +104,7 @@ function AdminPlansContent() {
               <div className="space-y-2"><Label>Max Amount ($)</Label><Input type="number" value={form.maxAmount} onChange={upd("maxAmount")} /></div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>ROI (%)</Label><Input type="number" step="0.1" value={form.roiPercent} onChange={upd("roiPercent")} /></div>
+              <div className="space-y-2"><Label>Total return for full term (%)</Label><Input type="number" step="0.1" value={form.roiPercent} onChange={upd("roiPercent")} /></div>
               <div className="space-y-2"><Label>Duration (days)</Label><Input type="number" value={form.durationDays} onChange={upd("durationDays")} /></div>
             </div>
           </div>

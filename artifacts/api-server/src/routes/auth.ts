@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { authMiddleware, generateToken, type AuthRequest } from "../middlewares/auth";
 import { LoginBody, RegisterBody } from "@workspace/api-zod";
 import { sendEmail, emailWelcome } from "../lib/email";
+import { processDailyProfitsForUser } from "../jobs/profit-distribution";
 
 const router = Router();
 
@@ -75,6 +76,7 @@ router.post("/auth/admin-login", (req, res) => authenticate(req, res, true));
 
 router.get("/auth/me", authMiddleware, async (req: AuthRequest, res) => {
   try {
+    await processDailyProfitsForUser(req.userId!);
     const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!));
     if (!user) return res.status(401).json({ error: "User not found" });
     const { password: _, ...safeUser } = user;

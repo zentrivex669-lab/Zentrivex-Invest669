@@ -880,7 +880,7 @@ export const RejectKycResponse = zod.object({
 export const ListTransactionsResponseItem = zod.object({
   "id": zod.number(),
   "userId": zod.number(),
-  "type": zod.enum(['deposit', 'withdrawal', 'investment', 'profit', 'referral']),
+  "type": zod.enum(['deposit', 'withdrawal', 'investment', 'profit', 'referral', 'principal_return']),
   "amount": zod.number(),
   "status": zod.enum(['pending', 'completed', 'failed']),
   "description": zod.string().nullish(),

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { useListInvestments } from "@workspace/api-client-react";
+import { useListInvestments, getListInvestmentsQueryKey } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Clock, ChevronDown } from "lucide-react";
@@ -15,7 +15,9 @@ function statusStyle(status: string) {
 }
 
 function InvestmentsContent() {
-  const { data: investments, isLoading } = useListInvestments();
+  const { data: investments, isLoading } = useListInvestments({
+    query: { queryKey: getListInvestmentsQueryKey(), refetchInterval: 60_000 },
+  });
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   return (
@@ -23,7 +25,7 @@ function InvestmentsContent() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black tracking-tight mb-1">My Investments</h1>
-          <p className="text-muted-foreground text-sm">Track all your active and completed investment plans.</p>
+          <p className="text-muted-foreground text-sm">Daily profit becomes withdrawable after each completed 24-hour period. Invested capital stays locked until the term ends.</p>
         </div>
         <Link href="/dashboard/plans"><Button size="sm" className="gap-2"><TrendingUp size={14} />New Investment</Button></Link>
       </div>
@@ -46,6 +48,8 @@ function InvestmentsContent() {
           const now = Date.now();
           const progress = Math.min(100, Math.max(0, ((now - start) / (end - start)) * 100));
           const daysLeft = Math.max(0, Math.ceil((end - now) / (1000 * 60 * 60 * 24)));
+          const durationDays = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)));
+          const dailyProfit = Number(inv.amount) * Number(inv.plan?.roiPercent ?? 0) / 100 / durationDays;
           return (
             <div key={inv.id} className="bg-card border border-card-border rounded-xl p-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
@@ -66,17 +70,21 @@ function InvestmentsContent() {
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4 mb-4 text-sm">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 text-sm">
                 <div className="bg-secondary/50 rounded-lg p-3">
-                  <p className="text-xs text-muted-foreground mb-1">ROI</p>
+                  <p className="text-xs text-muted-foreground mb-1">Total return</p>
                   <p className="font-bold text-primary">{inv.plan?.roiPercent}%</p>
                 </div>
                 <div className="bg-secondary/50 rounded-lg p-3">
-                  <p className="text-xs text-muted-foreground mb-1">Profit</p>
+                  <p className="text-xs text-muted-foreground mb-1">Profit credited</p>
                   <p className="font-bold text-green-400">${Number(inv.profit).toLocaleString("en-US", { minimumFractionDigits: 2 })}</p>
                 </div>
                 <div className="bg-secondary/50 rounded-lg p-3">
-                  <p className="text-xs text-muted-foreground mb-1">Ends</p>
+                  <p className="text-xs text-muted-foreground mb-1">Daily profit</p>
+                  <p className="font-bold text-green-400">${dailyProfit.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 8 })}</p>
+                </div>
+                <div className="bg-secondary/50 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Capital unlocks</p>
                   <p className="font-bold">{new Date(inv.endDate).toLocaleDateString()}</p>
                 </div>
               </div>

@@ -11,6 +11,7 @@ export const investmentsTable = pgTable("investments", {
   userId: integer("user_id").notNull().references(() => usersTable.id),
   planId: integer("plan_id").notNull().references(() => plansTable.id),
   amount: numeric("amount", { precision: 18, scale: 8 }).notNull(),
+  roiPercent: numeric("roi_percent", { precision: 8, scale: 4 }),
   profit: numeric("profit", { precision: 18, scale: 8 }).notNull().default("0"),
   status: investmentStatusEnum("status").notNull().default("active"),
   startDate: timestamp("start_date").notNull().defaultNow(),
@@ -20,6 +21,6 @@ export const investmentsTable = pgTable("investments", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const insertInvestmentSchema = createInsertSchema(investmentsTable).omit({ id: true, createdAt: true, updatedAt: true, profit: true, lastProfitAt: true });
+export const insertInvestmentSchema = createInsertSchema(investmentsTable).omit({ id: true, createdAt: true, updatedAt: true, roiPercent: true, profit: true, lastProfitAt: true });
 export type InsertInvestment = z.infer<typeof insertInvestmentSchema>;
 export type Investment = typeof investmentsTable.$inferSelect;

@@ -1123,7 +1123,7 @@ components:
           type: integer
         type:
           type: string
-          enum: [deposit, withdrawal, investment, profit, referral]
+          enum: [deposit, withdrawal, investment, profit, referral, principal_return]
         amount:
           type: number
         status:

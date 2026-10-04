@@ -279,7 +279,7 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-baseline gap-1">
                   <span className="text-4xl font-black text-primary">{plan.roiPercent}%</span>
-                  <span className="text-muted-foreground text-sm">return / {plan.durationDays} days</span>
+                  <span className="text-muted-foreground text-sm">total return / {plan.durationDays} days</span>
                 </div>
                 <div className="space-y-2 text-sm text-muted-foreground">
                   <div className="flex justify-between"><span>Min investment</span><span className="text-foreground font-semibold">${plan.minAmount.toLocaleString()}</span></div>
@@ -438,7 +438,6 @@ export default function LandingPage() {
             <Link href="/about" className="text-xs text-muted-foreground hover:text-foreground transition-colors">About Us</Link>
             <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Terms</Link>
             <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Privacy</Link>
-            <Link href="/admin/login" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Admin Login</Link>
             <p className="text-xs text-muted-foreground">© 2026 Zentrivex Ltd. All rights reserved.</p>
           </div>
         </div>
