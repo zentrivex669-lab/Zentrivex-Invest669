@@ -20,3 +20,9 @@ Keep public About, Terms, and homepage footer copy free of investment-risk warni
 **Why:** The user asked to remove public investment-risk copy while keeping operational transaction and security feedback.
 
 **How to apply:** Do not reintroduce investment-loss or return-not-guaranteed copy in public pages or footer settings; preserve unrelated legal clauses and transaction-safety notices.
+
+Keep the About, Terms, and Privacy pages concise and in plain language, and provide a separate public How to Use guide.
+
+**Why:** The user asked for those pages to be small and simple and requested a usage guide.
+
+**How to apply:** Use short sections and clear steps, and link the guide from public navigation and footers.

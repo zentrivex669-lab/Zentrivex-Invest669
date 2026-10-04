@@ -434,9 +434,10 @@ export default function LandingPage() {
             <span className="font-bold tracking-tight">Zentrivex</span>
             <span className="text-xs text-muted-foreground ml-2">Real Estate & Market Investments</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
             <Link href="/about" className="text-xs text-muted-foreground hover:text-foreground transition-colors">About Us</Link>
-            <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Terms</Link>
+            <Link href="/how-to-use" className="text-xs text-muted-foreground hover:text-foreground transition-colors">How to use</Link>
+            <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Terms of Use</Link>
             <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Privacy</Link>
             <p className="text-xs text-muted-foreground">© 2026 Zentrivex Ltd. All rights reserved.</p>
           </div>
