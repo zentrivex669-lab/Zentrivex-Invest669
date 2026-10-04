@@ -16,10 +16,8 @@ const sections = [
     ],
   },
   {
-    title: "3. Investment information and risk",
+    title: "3. Investment plans",
     paragraphs: [
-      "Information on the platform is provided to describe services and investment plans. It is not individualized financial, legal, tax, or investment advice. You are responsible for deciding whether an investment is appropriate for your circumstances and for seeking independent advice when needed.",
-      "All investments involve risk. You may lose some or all of your invested amount, values can fluctuate, and past or displayed performance does not guarantee future results. No return is guaranteed unless a binding written agreement expressly says otherwise.",
       "Plan availability, eligibility, fees, durations, withdrawal rules, and other terms may vary. The plan-specific terms presented to you form part of your agreement for that investment and prevail over general descriptions where they conflict.",
     ],
   },
@@ -51,9 +49,8 @@ const sections = [
     ],
   },
   {
-    title: "8. Disclaimers and liability",
+    title: "8. Liability",
     paragraphs: [
-      "To the extent permitted by law, the service is provided on an “as available” basis. We do not guarantee uninterrupted access, error-free content, or any investment outcome. Nothing in these terms excludes a right or liability that cannot legally be excluded.",
       "To the extent permitted by applicable law, Zentrivex will not be liable for indirect or consequential loss arising from use of the service. These terms do not limit liability for fraud, willful misconduct, or other liability that cannot be limited by law.",
     ],
   },
@@ -74,7 +71,7 @@ export default function TermsPage() {
         <h1 className="text-4xl font-black tracking-tight sm:text-5xl">Terms of Service</h1>
         <p className="mt-3 text-sm text-muted-foreground">Last updated: October 4, 2026</p>
         <p className="mt-6 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground">
-          These terms explain the general rules for using Zentrivex. Investment products may have additional plan-specific terms and risk disclosures.
+          These terms explain the general rules for using Zentrivex and the services available through the platform.
         </p>
 
         <div className="mt-10 space-y-9">

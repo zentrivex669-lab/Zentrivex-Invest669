@@ -14,3 +14,9 @@ Do not link to the admin sign-in from public pages. Keep `/admin/login` availabl
 **Why:** The user asked to remove public admin-login links while keeping direct admin access at `/admin/login`.
 
 **How to apply:** When editing public navigation or footers, omit the admin route; do not remove or rename the direct route or combine it with user authentication.
+
+Keep public About, Terms, and homepage footer copy free of investment-risk warnings and return disclaimers. Retain transaction and account-security notices that protect users during account or payment actions.
+
+**Why:** The user asked to remove public investment-risk copy while keeping operational transaction and security feedback.
+
+**How to apply:** Do not reintroduce investment-loss or return-not-guaranteed copy in public pages or footer settings; preserve unrelated legal clauses and transaction-safety notices.
