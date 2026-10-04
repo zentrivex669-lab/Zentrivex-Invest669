@@ -59,20 +59,20 @@ function RegisterForm() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>First Name</Label>
-              <Input value={form.firstName} onChange={update("firstName")} placeholder="John" className="h-11" />
+              <Input value={form.firstName} onChange={update("firstName")} placeholder="Enter your first name" className="h-11" />
             </div>
             <div className="space-y-2">
               <Label>Last Name</Label>
-              <Input value={form.lastName} onChange={update("lastName")} placeholder="Doe" className="h-11" />
+              <Input value={form.lastName} onChange={update("lastName")} placeholder="Enter your last name" className="h-11" />
             </div>
           </div>
           <div className="space-y-2">
             <Label>Email</Label>
-            <Input type="email" value={form.email} onChange={update("email")} placeholder="you@example.com" className="h-11" />
+            <Input type="email" value={form.email} onChange={update("email")} placeholder="Enter your email address" className="h-11" />
           </div>
           <div className="space-y-2">
             <Label>Phone (optional)</Label>
-            <Input type="tel" value={form.phone} onChange={update("phone")} placeholder="+1 555 000 0000" className="h-11" />
+            <Input type="tel" value={form.phone} onChange={update("phone")} placeholder="Enter your phone number" className="h-11" />
           </div>
           <div className="space-y-2">
             <Label>Password</Label>
@@ -87,7 +87,12 @@ function RegisterForm() {
             onClick={() => registerMutation.mutate({ data: { firstName: form.firstName, lastName: form.lastName, email: form.email, password: form.password, phone: form.phone || undefined, referralCode: referralCode || undefined } })}>
             {registerMutation.isPending ? "Creating account..." : "Create Account"}
           </Button>
-          <p className="text-xs text-muted-foreground text-center">By creating an account, you agree to our Terms of Service and Privacy Policy.</p>
+          <p className="text-xs text-muted-foreground text-center">
+            By creating an account, you agree to our{" "}
+            <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link>
+            {" "}and{" "}
+            <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
+          </p>
         </div>
         <p className="text-center text-sm text-muted-foreground mt-6">
           Already have an account?{" "}

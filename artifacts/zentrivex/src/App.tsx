@@ -25,6 +25,9 @@ import AdminSettingsReferral from "@/pages/admin/settings-referral";
 import AdminPortal from "@/pages/admin-portal";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
+import AboutPage from "@/pages/about";
+import TermsPage from "@/pages/terms";
+import PrivacyPage from "@/pages/privacy";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,6 +42,9 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
+      <Route path="/about" component={AboutPage} />
+      <Route path="/terms" component={TermsPage} />
+      <Route path="/privacy" component={PrivacyPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />
       <Route path="/dashboard" component={DashboardPage} />
