@@ -1,0 +1,28 @@
+kind = "video"
+previewPath = "/zentrivex-how-to-video/"
+title = "Zentrivex How to Use — Mobile Walkthrough"
+description = "A short 4:5 portrait animated walkthrough of the Zentrivex website, showing account setup, funding, plan selection, investment tracking, and withdrawal requests for embedding on the public How to Use page."
+version = "1.0.0"
+id = "artifacts/zentrivex-how-to-video"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/zentrivex-how-to-video/" ]
+localPort = 23402
+
+[services.development]
+run = "pnpm --filter @workspace/zentrivex-how-to-video run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/zentrivex-how-to-video", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/zentrivex-how-to-video/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23402"
+BASE_PATH = "/zentrivex-how-to-video/"
