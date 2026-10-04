@@ -12,7 +12,7 @@ const focusAreas = [
   {
     icon: LineChart,
     title: "Market portfolios",
-    description: "Review plans connected to market portfolios, including the risks and terms presented for each offering.",
+    description: "Review plans connected to market portfolios, with details and terms for each offering.",
   },
   {
     icon: ShieldCheck,
@@ -44,9 +44,9 @@ export default function AboutPage() {
         </section>
 
         <section className="mt-12 rounded-2xl border border-primary/20 bg-primary/5 p-6 sm:p-8">
-          <h2 className="mb-3 text-2xl font-bold">Make informed decisions</h2>
+          <h2 className="mb-3 text-2xl font-bold">Explore investment plans</h2>
           <p className="leading-7 text-muted-foreground">
-            Every investment involves risk, including the possibility of losing some or all of the amount invested. Returns shown on the site are not a promise of future performance. Review the applicable plan terms and risk information carefully before investing.
+            Review plan details and manage your account through the Zentrivex platform.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/register">

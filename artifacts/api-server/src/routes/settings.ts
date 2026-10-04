@@ -87,7 +87,6 @@ export const DEFAULT_HOMEPAGE = {
   stat4Value: "24K+",
   ctaButtonText: "Start Investing",
   badgeText: "REAL ESTATE & STOCK MARKET INVESTMENTS",
-  footerDisclaimer: "© 2026 Zentrivex Ltd. All rights reserved. Investments carry risk. Past performance is not indicative of future results.",
 };
 
 export const DEFAULT_REFERRAL_SETTINGS = {
@@ -109,6 +108,12 @@ async function setSetting(key: string, value: unknown) {
   } else {
     await db.insert(settingsTable).values({ key, value: json });
   }
+}
+
+function withoutFooterDisclaimer(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return { ...DEFAULT_HOMEPAGE };
+  const { footerDisclaimer: _footerDisclaimer, ...settings } = value as Record<string, unknown>;
+  return settings;
 }
 
 router.get("/settings/payment", async (_req, res) => {
@@ -142,7 +147,7 @@ router.put("/admin/settings/payment", authMiddleware, adminMiddleware, async (re
 
 router.get("/settings/homepage", async (_req, res) => {
   try {
-    const settings = await getSetting("homepage", DEFAULT_HOMEPAGE);
+    const settings = withoutFooterDisclaimer(await getSetting("homepage", DEFAULT_HOMEPAGE));
     return res.json(settings);
   } catch {
     return res.status(500).json({ error: "Failed to load homepage settings" });
@@ -151,8 +156,9 @@ router.get("/settings/homepage", async (_req, res) => {
 
 router.put("/admin/settings/homepage", authMiddleware, adminMiddleware, async (req: AuthRequest, res) => {
   try {
-    const current = await getSetting("homepage", DEFAULT_HOMEPAGE);
-    const updated = { ...(current as object), ...req.body };
+    const current = withoutFooterDisclaimer(await getSetting("homepage", DEFAULT_HOMEPAGE));
+    const incoming = withoutFooterDisclaimer(req.body);
+    const updated = { ...current, ...incoming };
     await setSetting("homepage", updated);
     return res.json({ ok: true, settings: updated });
   } catch {

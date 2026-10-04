@@ -22,7 +22,6 @@ interface HomepageSettings {
   stat4Value: string;
   ctaButtonText: string;
   badgeText: string;
-  footerDisclaimer: string;
 }
 
 function getToken() {
@@ -178,10 +177,6 @@ function HomepageEditorContent() {
         </div>
       </div>
 
-      <div className="bg-card border border-card-border rounded-2xl p-6 space-y-5">
-        <h2 className="font-bold text-base border-b border-card-border pb-3">Footer</h2>
-        <Field label="Footer Disclaimer Text" value={form.footerDisclaimer} onChange={v => set("footerDisclaimer", v)} multiline />
-      </div>
     </div>
   );
 }
