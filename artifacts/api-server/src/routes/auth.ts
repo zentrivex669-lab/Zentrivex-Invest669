@@ -1,10 +1,10 @@
-import { Router } from "express";
+import { Router, type Request, type Response } from "express";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { authMiddleware, generateToken, type AuthRequest } from "../middlewares/auth";
-import { RegisterBody, LoginBody } from "@workspace/api-zod";
+import { LoginBody, RegisterBody } from "@workspace/api-zod";
 import { sendEmail, emailWelcome } from "../lib/email";
 
 const router = Router();
@@ -49,7 +49,7 @@ router.post("/auth/register", async (req, res) => {
   }
 });
 
-router.post("/auth/login", async (req, res) => {
+async function authenticate(req: Request, res: Response, adminOnly: boolean) {
   try {
     const parsed = LoginBody.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
@@ -59,13 +59,19 @@ router.post("/auth/login", async (req, res) => {
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(401).json({ error: "Invalid credentials" });
     if (!user.isActive) return res.status(401).json({ error: "Account disabled" });
+    if (adminOnly && user.role !== "admin") return res.status(403).json({ error: "Admin access only" });
+    if (!adminOnly && user.role === "admin") return res.status(403).json({ error: "Use the admin login portal" });
     const token = generateToken(user.id, user.role);
     const { password: _, ...safeUser } = user;
     return res.json({ user: { ...safeUser, balance: Number(user.balance) }, token });
   } catch (e) {
     return res.status(500).json({ error: "Login failed" });
   }
-});
+}
+
+router.post("/auth/login", (req, res) => authenticate(req, res, false));
+
+router.post("/auth/admin-login", (req, res) => authenticate(req, res, true));
 
 router.get("/auth/me", authMiddleware, async (req: AuthRequest, res) => {
   try {

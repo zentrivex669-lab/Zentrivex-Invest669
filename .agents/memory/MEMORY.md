@@ -1,2 +1,3 @@
 - [Vercel root directory](vercel-root-directory.md) — monorepo deployments must use the repository root or Vercel can serve the API bundle as the homepage.
 - [Drizzle deployment sync](drizzle-deployment-sync.md) — name legacy unique constraints explicitly before running schema sync in non-interactive builds.
+- [Public marketing examples](public-marketing-examples.md) — do not use fabricated customer testimonials or real-looking sample names as public endorsements.

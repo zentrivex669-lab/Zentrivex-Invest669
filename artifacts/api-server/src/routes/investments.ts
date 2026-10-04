@@ -77,7 +77,7 @@ router.post("/investments", authMiddleware, async (req: AuthRequest, res) => {
 
 router.get("/investments/:id", authMiddleware, async (req: AuthRequest, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(String(req.params.id), 10);
     const [inv] = await db.select().from(investmentsTable).where(and(eq(investmentsTable.id, id), eq(investmentsTable.userId, req.userId!)));
     if (!inv) return res.status(404).json({ error: "Investment not found" });
     const [plan] = await db.select().from(plansTable).where(eq(plansTable.id, inv.planId));
@@ -89,7 +89,7 @@ router.get("/investments/:id", authMiddleware, async (req: AuthRequest, res) => 
 
 router.get("/investments/:id/profit-history", authMiddleware, async (req: AuthRequest, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(String(req.params.id), 10);
     const [inv] = await db.select().from(investmentsTable).where(and(eq(investmentsTable.id, id), eq(investmentsTable.userId, req.userId!)));
     if (!inv) return res.status(404).json({ error: "Investment not found" });
     const rows = await db

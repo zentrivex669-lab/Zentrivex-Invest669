@@ -30,7 +30,7 @@ router.get("/plans", async (req, res) => {
 
 router.get("/plans/:id", async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(String(req.params.id), 10);
     const [plan] = await db.select().from(plansTable).where(eq(plansTable.id, id));
     if (!plan) return res.status(404).json({ error: "Plan not found" });
     return res.json(formatPlan(plan));
@@ -57,7 +57,7 @@ router.post("/plans", authMiddleware, adminMiddleware, async (req: AuthRequest, 
 
 router.patch("/plans/:id", authMiddleware, adminMiddleware, async (req: AuthRequest, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(String(req.params.id), 10);
     const parsed = UpdatePlanBody.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
     const updates: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
@@ -74,7 +74,7 @@ router.patch("/plans/:id", authMiddleware, adminMiddleware, async (req: AuthRequ
 
 router.delete("/plans/:id", authMiddleware, adminMiddleware, async (req: AuthRequest, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(String(req.params.id), 10);
     await db.update(plansTable).set({ isActive: false }).where(eq(plansTable.id, id));
     return res.status(204).send();
   } catch (e) {

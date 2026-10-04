@@ -89,7 +89,7 @@ router.get("/admin/users", authMiddleware, adminMiddleware, async (req: AuthRequ
 
 router.get("/admin/users/:id", authMiddleware, adminMiddleware, async (req: AuthRequest, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(String(req.params.id), 10);
     const [user] = await db.select().from(usersTable).where(eq(usersTable.id, id));
     if (!user) return res.status(404).json({ error: "User not found" });
     const { password: _, ...safeUser } = user;
@@ -101,7 +101,7 @@ router.get("/admin/users/:id", authMiddleware, adminMiddleware, async (req: Auth
 
 router.patch("/admin/users/:id", authMiddleware, adminMiddleware, async (req: AuthRequest, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(String(req.params.id), 10);
     const { isActive, balance, role } = req.body;
     const updates: Record<string, unknown> = { updatedAt: new Date() };
     if (isActive !== undefined) updates.isActive = isActive;

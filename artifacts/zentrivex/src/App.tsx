@@ -5,8 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import NotFound from "@/pages/not-found";
 import LandingPage from "@/pages/landing";
-import LoginPage from "@/pages/login";
-import RegisterPage from "@/pages/register";
 import DashboardPage from "@/pages/dashboard/index";
 import PlansPage from "@/pages/dashboard/plans";
 import DepositPage from "@/pages/dashboard/deposit";
@@ -25,6 +23,11 @@ import AdminSettingsPayment from "@/pages/admin/settings-payment";
 import AdminSettingsHomepage from "@/pages/admin/settings-homepage";
 import AdminSettingsReferral from "@/pages/admin/settings-referral";
 import AdminPortal from "@/pages/admin-portal";
+import LoginPage from "@/pages/login";
+import RegisterPage from "@/pages/register";
+import AboutPage from "@/pages/about";
+import TermsPage from "@/pages/terms";
+import PrivacyPage from "@/pages/privacy";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,6 +42,9 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
+      <Route path="/about" component={AboutPage} />
+      <Route path="/terms" component={TermsPage} />
+      <Route path="/privacy" component={PrivacyPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />
       <Route path="/dashboard" component={DashboardPage} />
@@ -58,7 +64,6 @@ function Router() {
       <Route path="/admin/settings/payment" component={AdminSettingsPayment} />
       <Route path="/admin/settings/homepage" component={AdminSettingsHomepage} />
       <Route path="/admin/settings/referral" component={AdminSettingsReferral} />
-      <Route path="/admin-portal" component={AdminPortal} />
       <Route path="/admin/login" component={AdminPortal} />
       <Route component={NotFound} />
     </Switch>

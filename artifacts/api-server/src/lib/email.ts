@@ -1,18 +1,31 @@
 import nodemailer from "nodemailer";
 import { logger } from "./logger";
 
-const EMAIL_FROM = process.env["EMAIL_USER"] ?? "zentrivex669@gmail.com";
+const EMAIL_FROM = process.env["EMAIL_USER"];
 const EMAIL_PASS = process.env["EMAIL_PASS"];
 
 function getAppUrl(): string {
-  return (process.env["APP_URL"] || "https://zentrivex-invest.vercel.app").replace(/\/$/, "");
+  const configuredUrl =
+    process.env["APP_URL"] ||
+    process.env["VERCEL_PROJECT_PRODUCTION_URL"] ||
+    process.env["VERCEL_URL"] ||
+    process.env["REPLIT_DEV_DOMAIN"];
+  if (!configuredUrl) {
+    logger.warn("No application domain configured — email links disabled");
+    return "";
+  }
+  return `${/^https?:\/\//i.test(configuredUrl) ? "" : "https://"}${configuredUrl}`.replace(/\/$/, "");
 }
 
 const APP_URL = getAppUrl();
 
+function appLink(path: string): string {
+  return APP_URL ? `${APP_URL}${path}` : path;
+}
+
 function createTransport() {
-  if (!EMAIL_PASS) {
-    logger.warn("EMAIL_PASS not set — email sending disabled");
+  if (!EMAIL_FROM || !EMAIL_PASS) {
+    logger.warn("EMAIL_USER or EMAIL_PASS not set — email sending disabled");
     return null;
   }
   return nodemailer.createTransport({
@@ -32,15 +45,33 @@ function baseTemplate(content: string, previewText = "") {
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Zentrivex</title>
+<style>
+  html, body { width:100% !important; margin:0 !important; padding:0 !important; }
+  table { border-collapse:collapse; }
+  @media only screen and (max-width:600px) {
+    .email-outer { padding:16px 8px !important; }
+    .email-shell { width:100% !important; max-width:100% !important; }
+    .email-header, .email-body, .email-footer { padding-left:18px !important; padding-right:18px !important; }
+    .email-header { padding-top:24px !important; padding-bottom:24px !important; }
+    .email-body { padding-top:28px !important; padding-bottom:28px !important; }
+    .email-footer { padding-top:18px !important; padding-bottom:18px !important; }
+    .email-heading { font-size:22px !important; line-height:1.25 !important; }
+    .email-subheading { font-size:13px !important; margin-bottom:20px !important; }
+    .email-copy { font-size:14px !important; }
+    .email-info td { padding:9px 10px !important; font-size:12px !important; word-break:break-word !important; }
+    .email-alert td { padding:12px !important; }
+    .email-button { display:block !important; width:100% !important; box-sizing:border-box !important; padding:13px 16px !important; }
+  }
+</style>
 </head>
 <body style="margin:0;padding:0;background:#040f0e;font-family:Arial,Helvetica,sans-serif;">
 ${previewText ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${previewText}</div>` : ""}
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#040f0e;min-height:100vh;">
-  <tr><td align="center" style="padding:40px 16px;">
-    <table width="600" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px;width:100%;">
+  <tr><td class="email-outer" align="center" style="padding:40px 16px;">
+    <table class="email-shell" width="600" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px;width:100%;">
 
       <!-- Header -->
-      <tr><td style="background:linear-gradient(135deg,#051a17 0%,#061f1b 100%);border:1px solid #1a3530;border-radius:16px 16px 0 0;padding:32px 40px;text-align:center;">
+      <tr><td class="email-header" style="background:linear-gradient(135deg,#051a17 0%,#061f1b 100%);border:1px solid #1a3530;border-radius:16px 16px 0 0;padding:32px 40px;text-align:center;">
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr><td align="center">
             <table cellpadding="0" cellspacing="0">
@@ -58,12 +89,12 @@ ${previewText ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0
       </td></tr>
 
       <!-- Body -->
-      <tr><td style="background:#061410;border-left:1px solid #1a3530;border-right:1px solid #1a3530;padding:40px;">
+      <tr><td class="email-body" style="background:#061410;border-left:1px solid #1a3530;border-right:1px solid #1a3530;padding:40px;overflow-wrap:anywhere;">
         ${content}
       </td></tr>
 
       <!-- Footer -->
-      <tr><td style="background:#040f0e;border:1px solid #1a3530;border-top:none;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
+      <tr><td class="email-footer" style="background:#040f0e;border:1px solid #1a3530;border-top:none;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
         <p style="color:#4a6b60;font-size:12px;margin:0 0 8px;">© 2026 Zentrivex Ltd. All rights reserved.</p>
         <p style="color:#4a6b60;font-size:11px;margin:0;">This email was sent from a no-reply address. Do not reply.</p>
         <p style="color:#4a6b60;font-size:11px;margin:8px 0 0;">Zentrivex · Real Estate &amp; Stock Market Investments</p>
@@ -77,15 +108,15 @@ ${previewText ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0
 }
 
 function heading(text: string) {
-  return `<h1 style="color:#ffffff;font-size:24px;font-weight:900;margin:0 0 8px;letter-spacing:-0.5px;">${text}</h1>`;
+  return `<h1 class="email-heading" style="color:#ffffff;font-size:24px;font-weight:900;margin:0 0 8px;letter-spacing:-0.5px;">${text}</h1>`;
 }
 
 function subheading(text: string) {
-  return `<p style="color:#7db8a8;font-size:14px;margin:0 0 28px;">${text}</p>`;
+  return `<p class="email-subheading" style="color:#7db8a8;font-size:14px;margin:0 0 28px;">${text}</p>`;
 }
 
 function para(text: string) {
-  return `<p style="color:#a0c4b8;font-size:15px;line-height:1.6;margin:0 0 16px;">${text}</p>`;
+  return `<p class="email-copy" style="color:#a0c4b8;font-size:15px;line-height:1.6;margin:0 0 16px;overflow-wrap:anywhere;">${text}</p>`;
 }
 
 function divider() {
@@ -100,7 +131,7 @@ function infoRow(label: string, value: string, highlight = false) {
 }
 
 function infoTable(rows: string) {
-  return `<table width="100%" cellpadding="0" cellspacing="0" style="background:#040f0e;border:1px solid #1a3530;border-radius:10px;overflow:hidden;margin:20px 0;">
+  return `<table class="email-info" width="100%" cellpadding="0" cellspacing="0" style="background:#040f0e;border:1px solid #1a3530;border-radius:10px;overflow:hidden;margin:20px 0;table-layout:fixed;">
     ${rows}
   </table>`;
 }
@@ -112,7 +143,7 @@ function alertBox(type: "success" | "warning" | "danger", text: string) {
     danger: { bg: "#2a0808", border: "#7f1d1d", icon: "✕", iconBg: "#dc2626", text: "#fca5a5" },
   };
   const c = colors[type];
-  return `<table width="100%" cellpadding="0" cellspacing="0" style="background:${c.bg};border:1px solid ${c.border};border-radius:10px;margin:20px 0;">
+  return `<table class="email-alert" width="100%" cellpadding="0" cellspacing="0" style="background:${c.bg};border:1px solid ${c.border};border-radius:10px;margin:20px 0;">
     <tr>
       <td style="padding:16px;vertical-align:top;width:40px;">
         <div style="background:${c.iconBg};color:#000;font-weight:900;font-size:14px;width:24px;height:24px;border-radius:50%;text-align:center;line-height:24px;">${c.icon}</div>
@@ -124,7 +155,7 @@ function alertBox(type: "success" | "warning" | "danger", text: string) {
 
 function button(text: string, url: string) {
   return `<div style="text-align:center;margin:28px 0 8px;">
-    <a href="${url}" style="display:inline-block;background:#d97706;color:#000000;font-weight:700;font-size:15px;padding:14px 36px;border-radius:8px;text-decoration:none;letter-spacing:0.3px;">${text}</a>
+    <a class="email-button" href="${url}" style="display:inline-block;background:#d97706;color:#000000;font-weight:700;font-size:15px;padding:14px 36px;border-radius:8px;text-decoration:none;letter-spacing:0.3px;">${text}</a>
   </div>`;
 }
 
@@ -161,7 +192,7 @@ export function emailWelcome(firstName: string, email: string) {
       infoRow("Account Status", "Active ✓", true)
     )}
     ${para("To start investing, complete your KYC verification and make your first deposit. Our team reviews deposits within 24 hours.")}
-    ${button("Go to Dashboard →", "${APP_URL}/dashboard")}
+    ${button("Go to Dashboard →", appLink("/dashboard"))}
   `;
   return baseTemplate(content, `Welcome ${firstName}! Your Zentrivex account is ready.`);
 }
@@ -178,7 +209,7 @@ export function emailDepositSubmitted(firstName: string, amount: number, method:
       infoRow("Status", "Pending Review")
     )}
     ${alertBox("warning", "Please do not make duplicate payments while your deposit is under review. You will be notified once it is approved.")}
-    ${button("Track Your Deposit", "${APP_URL}/dashboard/deposit")}
+    ${button("Track Your Deposit", appLink("/dashboard/deposit"))}
   `;
   return baseTemplate(content, `Deposit of $${amount} received — under review`);
 }
@@ -195,7 +226,7 @@ export function emailDepositApproved(firstName: string, amount: number, newBalan
       infoRow("Status", "Approved ✓")
     )}
     ${para("Your capital is now ready to be deployed. Browse our investment plans to start generating returns.")}
-    ${button("Browse Investment Plans", "${APP_URL}/dashboard/plans")}
+    ${button("Browse Investment Plans", appLink("/dashboard/plans"))}
   `;
   return baseTemplate(content, `Deposit approved — $${amount} credited to your account`);
 }
@@ -211,7 +242,7 @@ export function emailDepositRejected(firstName: string, amount: number, reason: 
     )}
     ${alertBox("danger", `<strong>Reason:</strong> ${reason}`)}
     ${para("If you believe this is an error or need assistance, please contact our support team with your transaction details.")}
-    ${button("Try Again", "${APP_URL}/dashboard/deposit")}
+    ${button("Try Again", appLink("/dashboard/deposit"))}
   `;
   return baseTemplate(content, `Deposit rejected — action required`);
 }
@@ -229,7 +260,7 @@ export function emailWithdrawalSubmitted(firstName: string, amount: number, addr
       infoRow("Status", "Processing")
     )}
     ${alertBox("warning", "Please ensure your withdrawal address is correct. Transactions to incorrect addresses cannot be reversed.")}
-    ${button("View Withdrawal Status", "${APP_URL}/dashboard/withdraw")}
+    ${button("View Withdrawal Status", appLink("/dashboard/withdraw"))}
   `;
   return baseTemplate(content, `Withdrawal of $${amount} is being processed`);
 }
@@ -247,7 +278,7 @@ export function emailWithdrawalApproved(firstName: string, amount: number, addre
       infoRow("Status", "Completed ✓")
     )}
     ${para("Network transfer times vary. Crypto withdrawals typically confirm within 30–60 minutes. Bank wire transfers may take 1–3 business days.")}
-    ${button("View Transaction History", "${APP_URL}/dashboard/transactions")}
+    ${button("View Transaction History", appLink("/dashboard/transactions"))}
   `;
   return baseTemplate(content, `Withdrawal of $${amount} has been sent`);
 }
@@ -263,7 +294,7 @@ export function emailWithdrawalRejected(firstName: string, amount: number, reaso
     )}
     ${alertBox("danger", `<strong>Reason:</strong> ${reason}`)}
     ${para("Your balance has been restored. If you believe this is an error or need further assistance, please contact support.")}
-    ${button("Go to Dashboard", "${APP_URL}/dashboard")}
+    ${button("Go to Dashboard", appLink("/dashboard"))}
   `;
   return baseTemplate(content, `Withdrawal rejected — funds returned to your balance`);
 }
@@ -284,7 +315,7 @@ export function emailInvestmentPurchased(firstName: string, planName: string, am
       infoRow("Maturity Date", endDate.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }))
     )}
     ${alertBox("success", "Your investment is now generating returns. You will receive an email and a balance credit when your investment matures.")}
-    ${button("Track Your Investment", "${APP_URL}/dashboard/investments")}
+    ${button("Track Your Investment", appLink("/dashboard/investments"))}
   `;
   return baseTemplate(content, `${planName} investment activated — ${roiPercent}% ROI`);
 }
@@ -302,7 +333,7 @@ export function emailProfitCredited(firstName: string, planName: string, princip
       infoRow("Total Credited", `$${totalReturn.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, true)
     )}
     ${para("Reinvest your returns to compound your wealth. Our premium plans offer up to 42.5% ROI.")}
-    ${button("Reinvest Now", "${APP_URL}/dashboard/plans")}
+    ${button("Reinvest Now", appLink("/dashboard/plans"))}
   `;
   return baseTemplate(content, `$${profit.toLocaleString()} profit credited — your investment matured!`);
 }
@@ -318,7 +349,7 @@ export function emailReferralBonus(firstName: string, referredName: string, bonu
       infoRow("New Balance", `$${newBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, true)
     )}
     ${para("Keep sharing your referral link to keep earning bonuses every time a friend invests.")}
-    ${button("View Your Referrals", "${APP_URL}/dashboard/referrals")}
+    ${button("View Your Referrals", appLink("/dashboard/referrals"))}
   `;
   return baseTemplate(content, `Referral bonus earned — $${bonusAmount.toLocaleString()} credited!`);
 }
@@ -330,7 +361,7 @@ export function emailKycSubmitted(firstName: string) {
     ${para(`Hi <strong style="color:#fff;">${firstName}</strong>, thank you for submitting your identity verification. Our compliance team typically reviews KYC submissions within 24–48 hours.`)}
     ${alertBox("warning", "Do not submit duplicate applications while your current one is under review. You will be notified by email once the review is complete.")}
     ${para("KYC verification is required before making withdrawals and accessing premium investment plans.")}
-    ${button("View KYC Status", "${APP_URL}/dashboard/kyc")}
+    ${button("View KYC Status", appLink("/dashboard/kyc"))}
   `;
   return baseTemplate(content, `KYC submitted — under review`);
 }
@@ -342,7 +373,7 @@ export function emailKycApproved(firstName: string) {
     ${para(`Congratulations, <strong style="color:#fff;">${firstName}</strong>! Your identity has been verified and your account is now fully unlocked.`)}
     ${alertBox("success", "Your account is now fully verified. You can now access all investment plans and process withdrawals without restrictions.")}
     ${para("With full access enabled, explore our high-yield investment plans and start building your portfolio today.")}
-    ${button("Explore Investment Plans", "${APP_URL}/dashboard/plans")}
+    ${button("Explore Investment Plans", appLink("/dashboard/plans"))}
   `;
   return baseTemplate(content, `KYC Approved — your account is fully verified!`);
 }
@@ -360,7 +391,7 @@ export function emailKycRejected(firstName: string, reason: string) {
       <li>Matching the personal information in your account</li>
       <li>Government-issued (passport, national ID, or driver's license)</li>
     </ul>
-    ${button("Resubmit KYC", "${APP_URL}/dashboard/kyc")}
+    ${button("Resubmit KYC", appLink("/dashboard/kyc"))}
   `;
   return baseTemplate(content, `KYC rejected — please resubmit your documents`);
 }

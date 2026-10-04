@@ -122,7 +122,7 @@ router.get("/admin/deposits", authMiddleware, adminMiddleware, async (req: AuthR
 
 router.patch("/admin/deposits/:id/approve", authMiddleware, adminMiddleware, async (req: AuthRequest, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(String(req.params.id), 10);
     const [dep] = await db.select().from(depositsTable).where(eq(depositsTable.id, id));
     if (!dep) return res.status(404).json({ error: "Deposit not found" });
     if (dep.status !== "pending") return res.status(400).json({ error: "Deposit is not pending" });
@@ -153,7 +153,7 @@ router.patch("/admin/deposits/:id/approve", authMiddleware, adminMiddleware, asy
 
 router.patch("/admin/deposits/:id/reject", authMiddleware, adminMiddleware, async (req: AuthRequest, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(String(req.params.id), 10);
     const parsed = RejectDepositBody.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: "Rejection reason required" });
     const [dep] = await db.select().from(depositsTable).where(eq(depositsTable.id, id));
