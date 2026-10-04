@@ -314,6 +314,7 @@ export const TransactionType = {
   investment: 'investment',
   profit: 'profit',
   referral: 'referral',
+  principal_return: 'principal_return',
 } as const;
 
 export type TransactionStatus = typeof TransactionStatus[keyof typeof TransactionStatus];

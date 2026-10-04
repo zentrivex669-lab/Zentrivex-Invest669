@@ -1,147 +1,180 @@
 import { db, investmentsTable, plansTable, usersTable, transactionsTable } from "@workspace/db";
-import { eq, and, lte } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { sendEmail, emailProfitCredited } from "../lib/email";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-export async function processDailyProfits() {
-  try {
-    const now = new Date();
+function roundAmount(value: number): number {
+  return Number(value.toFixed(8));
+}
 
-    const activeInvs = await db
-      .select({
-        id: investmentsTable.id,
-        userId: investmentsTable.userId,
-        amount: investmentsTable.amount,
-        profit: investmentsTable.profit,
-        planId: investmentsTable.planId,
-        startDate: investmentsTable.startDate,
-        endDate: investmentsTable.endDate,
-        lastProfitAt: investmentsTable.lastProfitAt,
-        roiPercent: plansTable.roiPercent,
-        durationDays: plansTable.durationDays,
-        planName: plansTable.name,
-      })
+type MaturityNotice = {
+  investmentId: number;
+  userId: number;
+  planName: string;
+  amount: number;
+  totalProfit: number;
+};
+
+async function processInvestment(investmentId: number): Promise<MaturityNotice | null> {
+  return db.transaction(async (tx) => {
+    const [investment] = await tx
+      .select()
       .from(investmentsTable)
-      .innerJoin(plansTable, eq(investmentsTable.planId, plansTable.id))
-      .where(eq(investmentsTable.status, "active"));
+      .where(eq(investmentsTable.id, investmentId))
+      .for("update");
 
-    if (activeInvs.length === 0) return;
+    if (!investment || investment.status !== "active") return null;
 
-    for (const inv of activeInvs) {
-      const amount = Number(inv.amount);
-      const roiPercent = Number(inv.roiPercent);
-      const durationDays = inv.durationDays;
-      const totalProfit = parseFloat((amount * (roiPercent / 100)).toFixed(8));
-      const dailyProfit = parseFloat((totalProfit / durationDays).toFixed(8));
+    const [plan] = await tx.select().from(plansTable).where(eq(plansTable.id, investment.planId));
+    if (!plan) throw new Error(`Plan ${investment.planId} is missing for investment ${investment.id}`);
 
-      const effectiveNow = now < inv.endDate ? now : inv.endDate;
-      const daysElapsedTotal = Math.min(
-        durationDays,
-        Math.floor((effectiveNow.getTime() - inv.startDate.getTime()) / MS_PER_DAY)
-      );
-      const daysAlreadyCredited = Math.floor(
-        (inv.lastProfitAt.getTime() - inv.startDate.getTime()) / MS_PER_DAY
-      );
-      const newDays = daysElapsedTotal - daysAlreadyCredited;
+    const now = new Date();
+    const amount = Number(investment.amount);
+    const durationDays = Math.max(
+      1,
+      Math.round((investment.endDate.getTime() - investment.startDate.getTime()) / MS_PER_DAY),
+    );
+    const roiPercent = Number(investment.roiPercent ?? plan.roiPercent);
+    const totalProfit = roundAmount(amount * (roiPercent / 100));
+    const matured = now >= investment.endDate;
+    const elapsedMs = Math.max(0, Math.min(now.getTime(), investment.endDate.getTime()) - investment.startDate.getTime());
+    const elapsedPeriods = matured
+      ? durationDays
+      : Math.min(durationDays, Math.floor(elapsedMs / MS_PER_DAY));
+    const previouslyCreditedPeriods = Math.min(
+      durationDays,
+      Math.max(0, Math.floor((investment.lastProfitAt.getTime() - investment.startDate.getTime()) / MS_PER_DAY)),
+    );
+    const newPeriods = Math.max(0, elapsedPeriods - previouslyCreditedPeriods);
+    const creditedProfit = Number(investment.profit);
+    const profitTarget = elapsedPeriods >= durationDays
+      ? totalProfit
+      : roundAmount(totalProfit * elapsedPeriods / durationDays);
+    const profitCredit = roundAmount(Math.max(0, profitTarget - creditedProfit));
+    const updatedProfit = roundAmount(creditedProfit + profitCredit);
 
-      if (newDays > 0) {
-        const creditAmount = parseFloat((dailyProfit * newDays).toFixed(8));
-        const newLastProfitAt = new Date(inv.startDate.getTime() + daysElapsedTotal * MS_PER_DAY);
-
-        await db
-          .update(investmentsTable)
-          .set({
-            profit: sql`profit + ${creditAmount}`,
-            lastProfitAt: newLastProfitAt,
-            updatedAt: new Date(),
-          })
-          .where(eq(investmentsTable.id, inv.id));
-
-        await db
-          .update(usersTable)
-          .set({
-            balance: sql`balance + ${creditAmount}`,
-            updatedAt: new Date(),
-          })
-          .where(eq(usersTable.id, inv.userId));
-
-        await db.insert(transactionsTable).values({
-          userId: inv.userId,
-          type: "profit",
-          amount: creditAmount.toString(),
-          status: "completed",
-          description: `Daily profit — ${inv.planName} (${newDays} day${newDays > 1 ? "s" : ""})`,
-          investmentId: inv.id,
-        });
-
-        logger.info(
-          { investmentId: inv.id, userId: inv.userId, creditAmount, newDays },
-          "Daily profit credited — withdrawable, capital remains locked"
-        );
-      }
-
-      if (now >= inv.endDate) {
-        const [freshInv] = await db.select().from(investmentsTable).where(eq(investmentsTable.id, inv.id));
-        if (!freshInv || freshInv.status !== "active") continue;
-
-        const creditedProfit = Number(freshInv.profit);
-        const remainder = parseFloat((totalProfit - creditedProfit).toFixed(8));
-        const finalProfitAdjustment = remainder > 0 ? remainder : 0;
-        const principalAndRemainder = parseFloat((amount + finalProfitAdjustment).toFixed(8));
-
-        await db
-          .update(investmentsTable)
-          .set({
-            status: "completed",
-            profit: totalProfit.toString(),
-            updatedAt: new Date(),
-          })
-          .where(eq(investmentsTable.id, inv.id));
-
-        await db
-          .update(usersTable)
-          .set({
-            balance: sql`balance + ${principalAndRemainder}`,
-            updatedAt: new Date(),
-          })
-          .where(eq(usersTable.id, inv.userId));
-
-        await db.insert(transactionsTable).values({
-          userId: inv.userId,
-          type: "profit",
-          amount: principalAndRemainder.toString(),
-          status: "completed",
-          description: `Investment matured: ${inv.planName} — principal $${amount.toLocaleString()} returned${finalProfitAdjustment > 0 ? ` + final profit $${finalProfitAdjustment.toLocaleString()}` : ""}`,
-          investmentId: inv.id,
-        });
-
-        const [user] = await db.select().from(usersTable).where(eq(usersTable.id, inv.userId));
-        if (user) {
-          sendEmail(
-            user.email,
-            `Investment Matured — ${inv.planName} Capital Unlocked 💰`,
-            emailProfitCredited(user.firstName, inv.planName, amount, totalProfit, amount + totalProfit)
-          ).catch(() => {});
-        }
-        logger.info(
-          { investmentId: inv.id, userId: inv.userId, totalProfit, principalReturned: amount },
-          "Investment matured — principal unlocked and returned to balance"
-        );
-      }
+    if (profitCredit > 0 || matured) {
+      await tx
+        .update(investmentsTable)
+        .set({
+          roiPercent: investment.roiPercent ?? String(plan.roiPercent),
+          profit: updatedProfit.toFixed(8),
+          lastProfitAt: matured
+            ? investment.endDate
+            : new Date(investment.startDate.getTime() + elapsedPeriods * MS_PER_DAY),
+          status: matured ? "completed" : "active",
+          updatedAt: now,
+        })
+        .where(eq(investmentsTable.id, investment.id));
+    } else if (investment.roiPercent === null) {
+      await tx
+        .update(investmentsTable)
+        .set({ roiPercent: String(plan.roiPercent), updatedAt: now })
+        .where(eq(investmentsTable.id, investment.id));
     }
-  } catch (e) {
-    logger.error({ err: e }, "Error in profit distribution job");
+
+    const balanceCredit = roundAmount(profitCredit + (matured ? amount : 0));
+    if (balanceCredit > 0) {
+      await tx
+        .update(usersTable)
+        .set({
+          balance: sql`balance + ${balanceCredit}`,
+          updatedAt: now,
+        })
+        .where(eq(usersTable.id, investment.userId));
+    }
+
+    if (profitCredit > 0) {
+      await tx.insert(transactionsTable).values({
+        userId: investment.userId,
+        type: "profit",
+        amount: profitCredit.toFixed(8),
+        status: "completed",
+        description: `Daily profit — ${plan.name} (${newPeriods} 24-hour period${newPeriods === 1 ? "" : "s"})`,
+        investmentId: investment.id,
+      });
+      logger.info(
+        { investmentId: investment.id, userId: investment.userId, profitCredit, newPeriods },
+        "Daily profit credited to withdrawable balance",
+      );
+    }
+
+    if (!matured) return null;
+
+    await tx.insert(transactionsTable).values({
+      userId: investment.userId,
+      type: "principal_return",
+      amount: amount.toFixed(8),
+      status: "completed",
+      description: `Capital released at maturity — ${plan.name}`,
+      investmentId: investment.id,
+    });
+
+    return {
+      investmentId: investment.id,
+      userId: investment.userId,
+      planName: plan.name,
+      amount,
+      totalProfit: updatedProfit,
+    };
+  });
+}
+
+async function processInvestmentIds(investmentIds: number[]): Promise<void> {
+  for (const id of investmentIds) {
+    try {
+      const notice = await processInvestment(id);
+      if (!notice) continue;
+
+      const [user] = await db.select().from(usersTable).where(eq(usersTable.id, notice.userId));
+      if (user) {
+        sendEmail(
+          user.email,
+          `Investment Matured — ${notice.planName} Capital Unlocked`,
+          emailProfitCredited(
+            user.firstName,
+            notice.planName,
+            notice.amount,
+            notice.totalProfit,
+            notice.amount + notice.totalProfit,
+          ),
+        ).catch((err) => logger.warn({ err, investmentId: notice.investmentId }, "Maturity email could not be sent"));
+      }
+
+      logger.info(
+        { investmentId: notice.investmentId, userId: notice.userId, totalProfit: notice.totalProfit, principalReturned: notice.amount },
+        "Investment matured — capital released to withdrawable balance",
+      );
+    } catch (err) {
+      logger.error({ err, investmentId: id }, "Could not process investment profit");
+    }
   }
 }
 
+export async function processDailyProfits(): Promise<void> {
+  const activeInvestments = await db
+    .select({ id: investmentsTable.id })
+    .from(investmentsTable)
+    .where(eq(investmentsTable.status, "active"));
+  await processInvestmentIds(activeInvestments.map(({ id }) => id));
+}
+
+export async function processDailyProfitsForUser(userId: number): Promise<void> {
+  const activeInvestments = await db
+    .select({ id: investmentsTable.id })
+    .from(investmentsTable)
+    .where(and(eq(investmentsTable.status, "active"), eq(investmentsTable.userId, userId)));
+  await processInvestmentIds(activeInvestments.map(({ id }) => id));
+}
+
 export function startProfitDistributionJob() {
-  // Run every 60 seconds: credits accrued daily profit (withdrawable immediately)
-  // and unlocks principal only once an investment's duration has fully elapsed.
-  setInterval(processDailyProfits, 60 * 1000);
-  // Run once immediately on startup
-  processDailyProfits();
-  logger.info("Profit distribution job started (runs every 60s, credits profit daily)");
+  // Run every minute. Row locks make overlapping server/cron invocations idempotent.
+  setInterval(() => {
+    processDailyProfits().catch((err) => logger.error({ err }, "Scheduled profit distribution failed"));
+  }, 60 * 1000);
+  processDailyProfits().catch((err) => logger.error({ err }, "Initial profit distribution failed"));
+  logger.info("Profit distribution job started (runs every 60 seconds)");
 }

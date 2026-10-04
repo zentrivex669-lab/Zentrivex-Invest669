@@ -6,14 +6,20 @@ import { ArrowDownCircle, ArrowUpCircle, TrendingUp, DollarSign } from "lucide-r
 
 function txIcon(type: string) {
   if (type === "deposit") return <ArrowDownCircle size={16} className="text-green-400" />;
+  if (type === "principal_return") return <ArrowDownCircle size={16} className="text-green-400" />;
   if (type === "withdrawal") return <ArrowUpCircle size={16} className="text-red-400" />;
   if (type === "investment") return <TrendingUp size={16} className="text-blue-400" />;
   return <DollarSign size={16} className="text-primary" />;
 }
 
 function txColor(type: string) {
-  if (type === "deposit" || type === "profit" || type === "referral") return "text-green-400";
+  if (type === "deposit" || type === "profit" || type === "referral" || type === "principal_return") return "text-green-400";
   return "text-red-400";
+}
+
+function txLabel(type: string) {
+  if (type === "principal_return") return "Capital returned";
+  return type === "investment" ? "Investment" : type;
 }
 
 function statusBadge(status: string) {
@@ -57,11 +63,11 @@ function TransactionsContent() {
                 <div className="col-span-2 flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">{txIcon(tx.type)}</div>
                   <div>
-                    <p className="text-sm font-semibold capitalize">{tx.description || tx.type}</p>
+                    <p className="text-sm font-semibold capitalize">{tx.description || txLabel(tx.type)}</p>
                     <p className="text-xs text-muted-foreground">{new Date(tx.createdAt).toLocaleString()}</p>
                   </div>
                 </div>
-                <div className="flex items-center sm:justify-start"><Badge variant="outline" className="text-xs capitalize">{tx.type}</Badge></div>
+                <div className="flex items-center sm:justify-start"><Badge variant="outline" className="text-xs capitalize">{txLabel(tx.type)}</Badge></div>
                 <div className="flex items-center sm:justify-end">
                   <span className={`text-sm font-bold ${txColor(tx.type)}`}>
                     {tx.type === "withdrawal" || tx.type === "investment" ? "-" : "+"}${Number(tx.amount).toLocaleString("en-US", { minimumFractionDigits: 2 })}

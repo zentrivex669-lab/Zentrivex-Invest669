@@ -4,7 +4,7 @@ import { z } from "zod/v4";
 import { usersTable } from "./users";
 import { investmentsTable } from "./investments";
 
-export const transactionTypeEnum = pgEnum("transaction_type", ["deposit", "withdrawal", "investment", "profit", "referral"]);
+export const transactionTypeEnum = pgEnum("transaction_type", ["deposit", "withdrawal", "investment", "profit", "referral", "principal_return"]);
 export const transactionStatusEnum = pgEnum("transaction_status", ["pending", "completed", "failed"]);
 
 export const transactionsTable = pgTable("transactions", {

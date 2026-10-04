@@ -1,7 +1,13 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { useListPlans, useCreateInvestment, getListInvestmentsQueryKey, getGetDashboardQueryKey } from "@workspace/api-client-react";
+import {
+  useListPlans,
+  useCreateInvestment,
+  getListInvestmentsQueryKey,
+  getGetDashboardQueryKey,
+  getGetMeQueryKey,
+} from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +39,7 @@ function PlansContent() {
         setAmount("");
         qc.invalidateQueries({ queryKey: getListInvestmentsQueryKey() });
         qc.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
+        qc.invalidateQueries({ queryKey: getGetMeQueryKey() });
       },
       onError: (e: any) => {
         toast({ title: "Investment failed", description: e?.data?.error || "Could not activate investment", variant: "destructive" });
@@ -72,7 +79,7 @@ function PlansContent() {
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl font-black text-primary">{plan.roiPercent}%</span>
-                <span className="text-muted-foreground text-sm">return</span>
+                <span className="text-muted-foreground text-sm">total return</span>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">{meta.desc}</p>
               <div className="space-y-2 text-sm border-t border-card-border pt-4">
@@ -97,7 +104,7 @@ function PlansContent() {
             <div className="space-y-5">
               <div className="bg-secondary/50 rounded-xl p-4 space-y-2 text-sm">
                 <div className="flex justify-between"><span className="text-muted-foreground">Package type</span><span className="font-bold">{selectedPlan.meta.type}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Return rate</span><span className="font-bold text-primary">{selectedPlan.roiPercent}%</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Total return for term</span><span className="font-bold text-primary">{selectedPlan.roiPercent}%</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Duration</span><span className="font-semibold">{selectedPlan.durationDays} days</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Min investment</span><span className="font-semibold">${selectedPlan.minAmount.toLocaleString()}</span></div>
               </div>
@@ -105,10 +112,15 @@ function PlansContent() {
                 <Label>Investment Amount (USD)</Label>
                 <Input type="number" placeholder={`Min $${selectedPlan.minAmount}`} value={amount} onChange={e => setAmount(e.target.value)} className="h-11" />
                 {amount && (
-                  <p className="text-xs text-green-400">Estimated return: <strong>${(Number(amount) * selectedPlan.roiPercent / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}</strong> after {selectedPlan.durationDays} days</p>
+                  <div className="text-xs text-green-400 space-y-1">
+                    <p>Estimated total profit: <strong>${(Number(amount) * selectedPlan.roiPercent / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}</strong> over {selectedPlan.durationDays} days</p>
+                    <p>Estimated daily profit: <strong>${(Number(amount) * selectedPlan.roiPercent / 100 / selectedPlan.durationDays).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 8 })}</strong>, first credited after 24 hours</p>
+                  </div>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground">Your capital will be deployed into {selectedPlan.meta.type.toLowerCase()} assets managed by our portfolio team.</p>
+              <p className="text-xs text-muted-foreground">
+                Your capital will be deployed into {selectedPlan.meta.type.toLowerCase()} assets. Daily profit is credited to your withdrawable balance after each completed 24-hour period. The invested capital remains locked until the {selectedPlan.durationDays}-day term ends, then returns to your balance.
+              </p>
             </div>
           )}
           <DialogFooter className="gap-2">

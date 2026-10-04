@@ -1,23 +1,31 @@
 import { Router } from "express";
 import { db, investmentsTable, plansTable, usersTable, transactionsTable } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray, sql } from "drizzle-orm";
 import { authMiddleware, type AuthRequest } from "../middlewares/auth";
 import { CreateInvestmentBody } from "@workspace/api-zod";
 import { sendEmail, emailInvestmentPurchased } from "../lib/email";
 
 const router = Router();
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 function formatInvestment(inv: typeof investmentsTable.$inferSelect, plan?: typeof plansTable.$inferSelect | null) {
+  const amount = Number(inv.amount);
+  const durationDays = Math.max(1, Math.round((inv.endDate.getTime() - inv.startDate.getTime()) / MS_PER_DAY));
+  const roiPercent = Number(inv.roiPercent ?? plan?.roiPercent ?? 0);
+  const totalReturn = Number((amount * roiPercent / 100).toFixed(8));
+
   return {
     ...inv,
-    amount: Number(inv.amount),
+    amount,
     profit: Number(inv.profit),
     plan: plan ? {
       ...plan,
       minAmount: Number(plan.minAmount),
       maxAmount: Number(plan.maxAmount),
-      roiPercent: Number(plan.roiPercent),
-      totalReturn: Number(plan.minAmount) * (Number(plan.roiPercent) / 100) * (plan.durationDays / 365),
+      roiPercent,
+      durationDays,
+      totalReturn,
+      dailyProfit: Number((totalReturn / durationDays).toFixed(8)),
     } : undefined,
   };
 }
@@ -26,7 +34,7 @@ router.get("/investments", authMiddleware, async (req: AuthRequest, res) => {
   try {
     const invs = await db.select().from(investmentsTable).where(eq(investmentsTable.userId, req.userId!));
     const planIds = [...new Set(invs.map(i => i.planId))];
-    const plans = planIds.length > 0 ? await db.select().from(plansTable).where(eq(plansTable.id, planIds[0])) : [];
+    const plans = planIds.length > 0 ? await db.select().from(plansTable).where(inArray(plansTable.id, planIds)) : [];
     const planMap = Object.fromEntries(plans.map(p => [p.id, p]));
     return res.json(invs.map(i => formatInvestment(i, planMap[i.planId])));
   } catch (e) {
@@ -45,29 +53,59 @@ router.post("/investments", authMiddleware, async (req: AuthRequest, res) => {
     if (amount < Number(plan.minAmount) || amount > Number(plan.maxAmount)) {
       return res.status(400).json({ error: `Amount must be between $${plan.minAmount} and $${plan.maxAmount}` });
     }
-    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!));
-    if (Number(user.balance) < amount) return res.status(400).json({ error: "Insufficient balance" });
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + plan.durationDays);
-    const [inv] = await db.insert(investmentsTable).values({
-      userId: req.userId!,
-      planId,
-      amount: String(amount),
-      endDate,
-      startDate: new Date(),
-    }).returning();
-    await db.update(usersTable).set({ balance: String(Number(user.balance) - amount), updatedAt: new Date() }).where(eq(usersTable.id, req.userId!));
-    await db.insert(transactionsTable).values({
-      userId: req.userId!,
-      type: "investment",
-      amount: String(amount),
-      status: "completed",
-      description: `Investment in ${plan.name}`,
+    if (!Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: "Amount must be positive" });
+
+    const normalizedAmount = Number(amount.toFixed(8));
+    if (normalizedAmount < Number(plan.minAmount) || normalizedAmount > Number(plan.maxAmount)) {
+      return res.status(400).json({ error: `Amount must be between $${plan.minAmount} and $${plan.maxAmount}` });
+    }
+
+    const result = await db.transaction(async (tx) => {
+      const [user] = await tx
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.id, req.userId!))
+        .for("update");
+      if (!user) return { error: "User not found", status: 404 as const };
+      if (Number(user.balance) < normalizedAmount) {
+        return { error: "Insufficient balance", status: 400 as const };
+      }
+
+      const startDate = new Date();
+      const endDate = new Date(startDate.getTime() + plan.durationDays * MS_PER_DAY);
+      const [inv] = await tx.insert(investmentsTable).values({
+        userId: req.userId!,
+        planId,
+        amount: normalizedAmount.toFixed(8),
+        roiPercent: String(plan.roiPercent),
+        startDate,
+        lastProfitAt: startDate,
+        endDate,
+      }).returning();
+
+      await tx.update(usersTable).set({
+        balance: (Number(user.balance) - normalizedAmount).toFixed(8),
+        updatedAt: startDate,
+      }).where(eq(usersTable.id, req.userId!));
+
+      await tx.insert(transactionsTable).values({
+        userId: req.userId!,
+        type: "investment",
+        amount: normalizedAmount.toFixed(8),
+        status: "completed",
+        description: `Investment in ${plan.name}`,
+      });
+
+      return { inv, user };
     });
+
+    if ("error" in result) return res.status(result.status ?? 400).json({ error: result.error });
+
+    const { inv, user } = result;
     sendEmail(
       user.email,
       `Investment Activated — ${plan.name}`,
-      emailInvestmentPurchased(user.firstName, plan.name, amount, Number(plan.roiPercent), endDate)
+      emailInvestmentPurchased(user.firstName, plan.name, normalizedAmount, Number(plan.roiPercent), inv.endDate)
     ).catch(() => {});
     return res.status(201).json(formatInvestment(inv, plan));
   } catch (e) {

@@ -1,7 +1,13 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { useCreateWithdrawal, useListWithdrawals, getListWithdrawalsQueryKey, getGetDashboardQueryKey } from "@workspace/api-client-react";
+import {
+  useCreateWithdrawal,
+  useListWithdrawals,
+  getListWithdrawalsQueryKey,
+  getGetDashboardQueryKey,
+  getGetMeQueryKey,
+} from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -35,6 +41,7 @@ function WithdrawContent() {
         setAmount(""); setWalletAddress("");
         qc.invalidateQueries({ queryKey: getListWithdrawalsQueryKey() });
         qc.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
+        qc.invalidateQueries({ queryKey: getGetMeQueryKey() });
       },
       onError: (e: any) => {
         toast({ title: "Withdrawal failed", description: e?.data?.error || "Could not submit withdrawal", variant: "destructive" });

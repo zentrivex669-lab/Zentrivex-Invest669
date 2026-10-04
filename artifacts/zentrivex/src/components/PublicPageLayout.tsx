@@ -33,7 +33,6 @@ export default function PublicPageLayout({ children }: { children: ReactNode }) 
             <Link href="/about" className="hover:text-foreground">About Us</Link>
             <Link href="/terms" className="hover:text-foreground">Terms of Service</Link>
             <Link href="/privacy" className="hover:text-foreground">Privacy Policy</Link>
-            <Link href="/admin/login" className="hover:text-foreground">Admin Login</Link>
           </div>
         </div>
       </footer>
