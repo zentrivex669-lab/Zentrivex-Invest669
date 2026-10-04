@@ -3,36 +3,38 @@ import { ArrowRight, Building2, LineChart, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PublicPageLayout from "@/components/PublicPageLayout";
 
-const focusAreas = [
+const services = [
   {
     icon: Building2,
-    title: "Real estate",
-    description: "Explore investment plans associated with real estate markets and property-related opportunities.",
+    title: "Real estate plans",
+    description: "View plans connected to property markets.",
   },
   {
     icon: LineChart,
     title: "Market portfolios",
-    description: "Review plans connected to market portfolios, with details and terms for each offering.",
+    description: "Explore plans linked to financial markets.",
   },
   {
     icon: ShieldCheck,
     title: "Account tools",
-    description: "Manage account details, review activity, and complete verification steps through a single platform.",
+    description: "Manage your profile, activity, and transactions.",
   },
 ];
 
 export default function AboutPage() {
   return (
     <PublicPageLayout>
-      <article>
-        <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary">About Zentrivex</p>
-        <h1 className="mb-5 text-4xl font-black tracking-tight sm:text-5xl">A clearer way to review investment opportunities</h1>
-        <p className="max-w-3xl text-lg leading-8 text-muted-foreground">
-          Zentrivex is an online platform for exploring and managing investment plans related to real estate and financial markets. We bring plan information and account tools together so customers can review the details available to them in one place.
-        </p>
+      <article className="space-y-10">
+        <header>
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary">About Zentrivex</p>
+          <h1 className="mb-4 text-4xl font-black tracking-tight sm:text-5xl">A platform for managing investment plans</h1>
+          <p className="max-w-3xl text-lg leading-8 text-muted-foreground">
+            Zentrivex brings plan details, account activity, and transaction tools together in one place.
+          </p>
+        </header>
 
-        <section className="mt-12 grid gap-4 md:grid-cols-3">
-          {focusAreas.map(({ icon: Icon, title, description }) => (
+        <section className="grid gap-4 md:grid-cols-3" aria-label="Zentrivex services">
+          {services.map(({ icon: Icon, title, description }) => (
             <div key={title} className="rounded-2xl border border-card-border bg-card p-6">
               <span className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Icon size={19} />
@@ -43,17 +45,15 @@ export default function AboutPage() {
           ))}
         </section>
 
-        <section className="mt-12 rounded-2xl border border-primary/20 bg-primary/5 p-6 sm:p-8">
-          <h2 className="mb-3 text-2xl font-bold">Explore investment plans</h2>
-          <p className="leading-7 text-muted-foreground">
-            Review plan details and manage your account through the Zentrivex platform.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
+        <section className="rounded-2xl border border-primary/20 bg-primary/5 p-6 sm:p-8">
+          <h2 className="mb-2 text-2xl font-bold">Get started</h2>
+          <p className="mb-5 leading-7 text-muted-foreground">Create an account to view plans and manage your activity.</p>
+          <div className="flex flex-wrap gap-3">
             <Link href="/register">
               <Button className="gap-2">Create an account <ArrowRight size={16} /></Button>
             </Link>
-            <Link href="/terms">
-              <Button variant="outline">Read our Terms</Button>
+            <Link href="/how-to-use">
+              <Button variant="outline">How to use</Button>
             </Link>
           </div>
         </section>
