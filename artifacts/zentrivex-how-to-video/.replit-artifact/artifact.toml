@@ -1,4 +1,5 @@
 kind = "video"
+videoAspectRatio = "4:5"
 previewPath = "/zentrivex-how-to-video/"
 title = "Zentrivex How to Use — Mobile Walkthrough"
 description = "A short 4:5 portrait animated walkthrough of the Zentrivex website, showing account setup, funding, plan selection, investment tracking, and withdrawal requests for embedding on the public How to Use page."

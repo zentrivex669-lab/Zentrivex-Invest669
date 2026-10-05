@@ -6,23 +6,27 @@ import PublicPageLayout from "@/components/PublicPageLayout";
 const steps = [
   {
     title: "Create an account",
-    description: "Register and sign in. Complete identity verification to unlock account transactions.",
+    description: "Register with your own details and sign in to your account.",
+  },
+  {
+    title: "Verify your identity",
+    description: "Complete identity verification before making deposits, investments, or withdrawals.",
   },
   {
     title: "Add funds",
-    description: "Choose a payment method, submit your deposit details, and wait for review and approval.",
+    description: "Choose a payment method, submit a deposit request, and wait for review.",
   },
   {
     title: "Choose a plan",
-    description: "Select a plan, enter an amount from your available balance, and confirm your investment.",
+    description: "Review the plan terms and minimum, then confirm using your available balance.",
   },
   {
     title: "Track your investment",
-    description: "View progress and credited profit under My Investments. Profit is credited after each full 24-hour period. Your principal returns to your available balance when the plan ends.",
+    description: "Follow your investment status under My Investments.",
   },
   {
     title: "Request a withdrawal",
-    description: "Request a withdrawal from your available balance and follow its status in your account. Withdrawal requests need approval.",
+    description: "Request a withdrawal from your available balance and follow its status. Requests need approval.",
   },
 ];
 
@@ -35,6 +39,25 @@ export default function HowToUsePage() {
         <p className="mt-5 max-w-3xl leading-7 text-muted-foreground">
           Follow these steps to set up your account and manage an investment.
         </p>
+
+        <section className="mt-8 max-w-sm" aria-labelledby="how-to-video-title">
+          <h2 id="how-to-video-title" className="mb-3 text-lg font-bold">
+            Watch the quick guide
+          </h2>
+          <div className="aspect-[4/5] overflow-hidden rounded-2xl border border-card-border bg-background shadow-xl">
+            <iframe
+              className="h-full w-full border-0"
+              src={`${import.meta.env.BASE_URL}zentrivex-how-to-video/`}
+              title="Zentrivex 30-second account walkthrough"
+              allow="autoplay; fullscreen"
+              loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
+            />
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            30-second walkthrough with on-screen captions.
+          </p>
+        </section>
 
         <ol className="mt-8 space-y-4">
           {steps.map(({ title, description }, index) => (
